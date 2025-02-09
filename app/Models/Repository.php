@@ -18,7 +18,16 @@ class Repository extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['token', 'owner', 'name', 'url', 'user_id', 'subscription_status', 'type'];
+    protected $fillable = [
+        'token',
+        'owner',
+        'name',
+        'url',
+        'user_id',
+        'subscription_id',
+        'subscription_status',
+        'type'
+    ];
 
     protected $casts = [
         'subscription_status' => SubscriptionStatus::class,

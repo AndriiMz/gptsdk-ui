@@ -14,13 +14,23 @@ class StripeEventListener
      */
     public function handle(WebhookReceived $event): void
     {
-        $repositoryId = $event->payload['metadata']['repositoryId'] ?? null;
-        if (!$repositoryId) {
+        if (
+            $event->payload['type'] === Event::CHECKOUT_SESSION_COMPLETED &&
+            isset($event->payload['metadata']['repositoryId'])
+        ) {
+            $repository = Repository::findOrFail(
+                $event->payload['metadata']['repositoryId']
+            );
+
+            $repository->update([
+                'subscription_status' => SubscriptionStatus::PAID,
+                'subscription_id' => $event->payload['subscription']
+            ]);
+
             return;
         }
 
-
-        $repository = Repository::findOrFail($repositoryId);
+        $repository = Repository::firstWhere('subscription_id', $event->payload['id']);
         $newSubscriptionStatus = null;
         switch ($event->payload['type']) {
             case Event::CUSTOMER_SUBSCRIPTION_CREATED:
@@ -35,7 +45,7 @@ class StripeEventListener
                 break;
         }
 
-        if (null !== $newSubscriptionStatus) {
+        if (null !== $newSubscriptionStatus && $repository) {
             $repository->update([
                 'subscription_status' => $newSubscriptionStatus
             ]);

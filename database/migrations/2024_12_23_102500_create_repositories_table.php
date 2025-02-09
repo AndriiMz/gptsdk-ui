@@ -17,7 +17,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('url');
             $table->enum('type', ['github', 'temp'])->default('github');
+            $table->string('subscription_id')->nullable();
             $table->enum('subscription_status', ['paid', 'free'])->default('free');
+
+            $table->index('subscription_id');
+            $table->index('user_id');
 
             $table->timestamps();
         });
