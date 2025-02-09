@@ -5,6 +5,7 @@ namespace App\EventListeners;
 use App\Enum\SubscriptionStatus;
 use App\Models\Repository;
 use Laravel\Cashier\Events\WebhookReceived;
+use Stripe\Event;
 
 class StripeEventListener
 {
@@ -18,13 +19,26 @@ class StripeEventListener
             return;
         }
 
+
         $repository = Repository::findOrFail($repositoryId);
-        if ($event->payload['type'] === 'invoice.payment_succeeded') {
-            $repository->update(['subscription_status' => SubscriptionStatus::PAID]);
+        $newSubscriptionStatus = null;
+        switch ($event->payload['type']) {
+            case Event::CUSTOMER_SUBSCRIPTION_CREATED:
+            case Event::CUSTOMER_SUBSCRIPTION_RESUMED:
+                $newSubscriptionStatus = SubscriptionStatus::PAID;
+                break;
+            case Event::CUSTOMER_SUBSCRIPTION_DELETED:
+                $newSubscriptionStatus = SubscriptionStatus::FREE;
+                break;
+            case Event::CUSTOMER_SUBSCRIPTION_PAUSED:
+                $newSubscriptionStatus = SubscriptionStatus::PAST_DUE;
+                break;
         }
 
-        if ($event->payload['type'] === 'invoice.payment_failed') {
-            $repository->update(['subscription_status' => SubscriptionStatus::PAST_DUE]);
+        if (null !== $newSubscriptionStatus) {
+            $repository->update([
+                'subscription_status' => $newSubscriptionStatus
+            ]);
         }
     }
 }
