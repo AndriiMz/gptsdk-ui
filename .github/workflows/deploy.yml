@@ -15,7 +15,7 @@ jobs:
           username: ${{secrets.USERNAME}}
           key: ${{secrets.KEY}}
           script: |
-            cd /var/www/solhub
-            git pull
+            cd /var/www/gptsdk-ui
+            ssh-agent bash -c 'ssh-add ~/.ssh/gptsdk-ui_rsa; git pull';
             ./artisan cache:clear
             echo 'Deployment to digital ocean finished'
