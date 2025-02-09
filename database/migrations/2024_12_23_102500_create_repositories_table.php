@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
 
-            $table->string('token')->unique();
+            $table->string('token');
             $table->string('owner');
             $table->string('name');
             $table->string('url');
