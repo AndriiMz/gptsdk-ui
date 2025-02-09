@@ -21,6 +21,8 @@ class StripeEventListener
             $repository = Repository::findOrFail(
                 $event->payload['metadata']['repositoryId']
             );
+            var_dump($repository->id);
+            die;
 
             $repository->update([
                 'subscription_status' => SubscriptionStatus::PAID,
