@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Run PHP_CodeSniffer and PHP Code Beautifier and Fixer (CBF) on staged PHP files
+docker compose exec -T laravel.test sh -c "./artisan test"
+npm run test -- --run
