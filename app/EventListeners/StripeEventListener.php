@@ -14,6 +14,9 @@ class StripeEventListener
      */
     public function handle(WebhookReceived $event): void
     {
+        var_dump($event->payload);
+        die;
+
         if (
             $event->payload['type'] === Event::CHECKOUT_SESSION_COMPLETED &&
             isset($event->payload['metadata']['repositoryId'])
