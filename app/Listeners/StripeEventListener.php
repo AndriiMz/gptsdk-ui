@@ -1,6 +1,6 @@
 <?php
 
-namespace App\EventListeners;
+namespace App\Listeners;
 
 use App\Enum\SubscriptionStatus;
 use App\Models\Repository;
@@ -14,18 +14,13 @@ class StripeEventListener
      */
     public function handle(WebhookReceived $event): void
     {
-        var_dump($event->payload);
-        die;
-
         if (
             $event->payload['type'] === Event::CHECKOUT_SESSION_COMPLETED &&
-            isset($event->payload['metadata']['repositoryId'])
+            isset($event->payload['data']['object']['metadata']['repositoryId'])
         ) {
             $repository = Repository::findOrFail(
-                $event->payload['metadata']['repositoryId']
+                $event->payload['data']['object']['metadata']['repositoryId']
             );
-            var_dump($repository->id);
-            die;
 
             $repository->update([
                 'subscription_status' => SubscriptionStatus::PAID,
@@ -35,7 +30,7 @@ class StripeEventListener
             return;
         }
 
-        $repository = Repository::firstWhere('subscription_id', $event->payload['id']);
+        $repository = Repository::firstWhere('subscription_id', $event->payload['data']['object']['id']);
         $newSubscriptionStatus = null;
         switch ($event->payload['type']) {
             case Event::CUSTOMER_SUBSCRIPTION_CREATED:
