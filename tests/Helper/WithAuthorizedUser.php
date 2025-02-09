@@ -19,12 +19,12 @@ trait WithAuthorizedUser
 
         $user = User::factory()->create([
             'email_verified' => 1,
-            'auth0' => 1,
+            'external_id' => 1,
             'name' => 'Andrew M',
             'email' => 'moroz@gpt-sdk.com'
         ]);
 
-        $this->actingAs($user, 'auth0-session');
+        $this->actingAs($user, 'web');
 
         $this->user = $user;
 

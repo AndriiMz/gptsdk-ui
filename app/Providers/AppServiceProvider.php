@@ -4,18 +4,25 @@ namespace App\Providers;
 
 use App\Enum\PromptRepositoryType;
 use App\Enum\SubscriptionStatus;
+use App\Guard\LogtoGuard;
 use App\Models\AiApiKey;
 use App\Models\AiConnector;
 use App\Models\Repository;
 use App\Models\User;
 use App\PromptRepository\GitHubPromptRepository;
 use App\PromptRepository\TempPromptRepository;
+use App\Storage\DbLogtoSessionStorage;
 use Gptsdk\AI\AnthropicAIVendor;
 use Gptsdk\AI\OpenAIVendor;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
+use Logto\Sdk\Constants\UserScope;
+use Logto\Sdk\LogtoClient;
+use Logto\Sdk\LogtoConfig;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -95,5 +102,33 @@ class AppServiceProvider extends ServiceProvider
                 );
             }
         );
+
+
+        $this->app->singleton(
+            LogtoClient::class,
+            function (Application $application) {
+                return new LogtoClient(
+                    new LogtoConfig(
+                        endpoint: config('auth.logto.endpoint'),
+                        appId: config('auth.logto.app_id'),
+                        appSecret: config('auth.logto.app_secret'),
+                        scopes: [UserScope::profile, UserScope::email]
+                    ),
+                    new DbLogtoSessionStorage(
+                        $application->get(Request::class)
+                    )
+                );
+            }
+        );
+
+        Auth::extend('logto', function (Application $app, string $name, array $config) {
+            // Return an instance of Illuminate\Contracts\Auth\Guard...
+
+            //TODO: respect provider
+            return new LogtoGuard(
+                $app->make(LogtoClient::class),
+
+            );
+        });
     }
 }

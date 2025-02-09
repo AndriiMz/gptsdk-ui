@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * @deprecated
+ */
 final class UserRepository extends UserRepositoryAbstract implements UserRepositoryContract
 {
     public function fromAccessToken(array $user): ?Authenticatable

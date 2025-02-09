@@ -18,6 +18,11 @@ return [
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
 
+    'logto' => [
+        'endpoint' => env('LOGTO_ENDPOINT'),
+        'app_id' => env('LOGTO_APP_ID'),
+        'app_secret' => env('LOGTO_APP_SECRET')
+    ],
     /*
     |--------------------------------------------------------------------------
     | Authentication Guards
@@ -37,7 +42,7 @@ return [
 
     'guards' => [
         'web' => [
-            'driver' => 'session',
+            'driver' => 'logto',
             'provider' => 'users',
         ],
     ],
@@ -60,10 +65,10 @@ return [
     */
 
     'providers' => [
-        'auth0-provider' => [
-            'driver' => 'auth0.provider',
-            'repository' => \App\Repositories\UserRepository::class,
-        ],
+//        'auth0-provider' => [
+//            'driver' => 'auth0.provider',
+//            'repository' => \App\Repositories\UserRepository::class,
+//        ],
     ],
 
     /*
@@ -86,12 +91,12 @@ return [
     */
 
     'passwords' => [
-        'users' => [
-            'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
+//        'users' => [
+//            'provider' => 'users',
+//            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+//            'expire' => 60,
+//            'throttle' => 60,
+//        ],
     ],
 
     /*

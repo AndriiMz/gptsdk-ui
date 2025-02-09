@@ -15,6 +15,7 @@
         "laravel/cashier": "^15.6",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
+        "logto/sdk": "^0.3.0",
         "saassdk/gptsdk-php": "^0.0.1",
         "spatie/laravel-data": "^4.11",
         "symfony/http-client": "^7.2"

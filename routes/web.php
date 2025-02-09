@@ -1,9 +1,12 @@
 <?php
 
 use App\Data\RepositoryData;
+
 use App\Http\Controllers\Ui\AiApiKeyUiController;
+use App\Http\Controllers\Ui\LogtoUiController;
 use App\Http\Controllers\Ui\RepositoryUiController;
 use App\Http\Controllers\Ui\PromptUiController;
+
 use App\Http\Controllers\UiApi\AiApiKeyUiApiController;
 use App\Http\Controllers\UiApi\AiConnectorUiApiController;
 use App\Http\Controllers\UiApi\AiLogUiApiController;
@@ -12,6 +15,15 @@ use App\Models\Repository;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Logto\Sdk\LogtoClient;
+
+Route::get('/callback', [LogtoUiController::class, 'callback']);
+Route::get('/login', function (LogtoClient $client) {
+    return redirect($client->signIn(config('app.url') . '/callback'));
+})->name('login');
+Route::get('/logout', function (LogtoClient $client) {
+    return redirect($client->signOut(config('app.url')));
+})->name('logout');
 
 
 Route::middleware('auth')->group(function () {

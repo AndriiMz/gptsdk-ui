@@ -11,19 +11,19 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('auth0')->nullable();
+            $table->string('external_id')->nullable();
             $table->boolean('email_verified')->default(false);
 
-            $table->unique('auth0', 'users_auth0_unique');
+            $table->unique('external_id', 'users_external_id_unique');
         });
     }
 
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropUnique('users_auth0_unique');
+            $table->dropUnique('users_external_id_unique');
 
-            $table->dropColumn('auth0');
+            $table->dropColumn('external_id');
             $table->dropColumn('email_verified');
         });
     }
