@@ -1,16 +1,5 @@
-## Create Auth0 application on PROD
-```
-./auth0 apps create \
---name "GptSdk" \
---type "regular" \
---auth-method "post" \
---callbacks "https://app.gpt-sdk.com/callback" \
---logout-urls "https://app.gpt-sdk.com" \
---reveal-secrets \
---no-input \
---json > .auth0.app.json
-```
-
+### Setup develop environment
+1. Setup git hooks folder: ```git config core.hooksPath .githooks```, now for every commit you will see cs fixes for the new code.
 
 ## Local Installation
 #### Preparation:
@@ -32,4 +21,4 @@ and node min version 18
 3. Create .auth0.api.json. Ask teammate to share.
 4. Run `composer install` and `npm i`
 5. Run `./artisan key:generate` and `./artisan migrate`
-6. Create Auth0
+6. Enjoy
