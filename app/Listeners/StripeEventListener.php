@@ -24,7 +24,7 @@ class StripeEventListener
 
             $repository->update([
                 'subscription_status' => SubscriptionStatus::PAID,
-                'subscription_id' => $event->payload['subscription']
+                'subscription_id' => $event->payload['data']['object']['subscription']
             ]);
 
             return;
