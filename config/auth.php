@@ -65,10 +65,6 @@ return [
     */
 
     'providers' => [
-//        'auth0-provider' => [
-//            'driver' => 'auth0.provider',
-//            'repository' => \App\Repositories\UserRepository::class,
-//        ],
     ],
 
     /*
