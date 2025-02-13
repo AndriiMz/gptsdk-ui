@@ -14,7 +14,13 @@ import axios from 'axios';
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 createInertiaApp({
-    title: (title) => `${title}`,
+    title: (title) => {
+        if (!title) {
+            title = 'Prompt Management Tool'
+        }
+
+        return `GptSdk - ${title}`
+    },
     resolve: name => {
         const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
         const page = pages[`./Pages/${name}.vue`]

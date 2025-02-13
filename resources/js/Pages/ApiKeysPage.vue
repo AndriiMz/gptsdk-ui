@@ -5,6 +5,7 @@ import {storeToRefs} from "pinia";
 import {onMounted} from "vue";
 import {DataTable, Column, Button} from "primevue"
 import {momentToElapsed} from "../helpers/dateHelper.js";
+import {Head} from "@inertiajs/vue3";
 
 const store = useAiApiKeys()
 const { state } = storeToRefs(store)
@@ -15,6 +16,8 @@ onMounted(() => {
 })
 </script>
 <template>
+    <Head title="Api Keys" />
+
     <LayoutTitle>
         AI Api Keys
     </LayoutTitle>

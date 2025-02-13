@@ -1,5 +1,6 @@
 <script setup>
 
+import { Head } from '@inertiajs/vue3'
 import {computed} from "vue";
 import {usePage} from "@inertiajs/vue3";
 import LayoutTitle from "../Common/LayoutTitle.vue";
@@ -13,9 +14,12 @@ const user = computed(() => {
 })
 
 const repositories = computed(() => page.props.repositories)
+
 </script>
 
 <template>
+    <Head title="Dashboard" />
+
     <LayoutTitle>
         Hello {{user.name.split(' ')[0]}} 👋
     </LayoutTitle>

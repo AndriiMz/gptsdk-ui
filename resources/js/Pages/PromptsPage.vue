@@ -2,7 +2,7 @@
 
 import {Select, DataTable, Column, Button, useToast} from 'primevue'
 import {computed} from "vue";
-import {usePage} from "@inertiajs/vue3";
+import {Head, usePage} from "@inertiajs/vue3";
 import {NodeType} from "../types/nodeType.ts";
 import LayoutTitle from "../Common/LayoutTitle.vue";
 import {SubscriptionStatus} from "../types/subscriptionStatus.ts";
@@ -69,6 +69,8 @@ const isPaidRepository = computed(() => {
 </script>
 
 <template>
+    <Head :title="repository.name" />
+
     <LayoutTitle>
         {{repository.name}}/{{page.props.path}}
     </LayoutTitle>

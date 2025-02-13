@@ -2,7 +2,7 @@
 
 import {InputText, Button, IftaLabel, Select, Message, useToast} from "primevue";
 
-import {useForm, usePage} from "@inertiajs/vue3";
+import {Head, useForm, usePage} from "@inertiajs/vue3";
 import LayoutTitle from "../Common/LayoutTitle.vue";
 import {computed} from "vue";
 import Error from "../Common/Form/Error.vue";
@@ -41,6 +41,8 @@ const saveRepository = () => {
 </script>
 
 <template>
+    <Head :title="repository?.name ?? 'New Repository'" />
+
     <LayoutTitle>
         <template v-if="repository">
             "{{repository.name}}" settings

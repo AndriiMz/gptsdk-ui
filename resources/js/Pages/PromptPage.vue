@@ -2,7 +2,7 @@
 import {InputText, Button, useToast, SelectButton, Message, InputGroupAddon, InputGroup} from "primevue"
 
 
-import {useForm, usePage} from "@inertiajs/vue3";
+import {Head, useForm, usePage} from "@inertiajs/vue3";
 import PromptBuilder from "../Components/Prompt/PromptBuilder.vue";
 import PromptVariables from "../Components/Prompt/PromptVariables.vue";
 import {computed, onMounted, reactive} from "vue";
@@ -88,6 +88,7 @@ const onTryingToTest = (newValue) => {
 </script>
 
 <template>
+    <Head :title="promptForm.path" />
 
     <div class="flex gap-4 justify-items-between py-2 items-center">
         <div>
