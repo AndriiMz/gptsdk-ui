@@ -1,17 +1,21 @@
 import {describe, expect, test, vi} from 'vitest'
-import {mount} from '@vue/test-utils'
-import PromptPage from "../js/Pages/PromptPage.vue";
+import {config, mount} from '@vue/test-utils'
 import {createPinia, setActivePinia} from "pinia";
-import {nextTick, reactive} from "vue";
+import {nextTick} from "vue";
 import {vueWrapperOptions} from "./helper.js";
-import axios from "axios";
-import ValuesModal from "../js/Components/Modals/ValuesModal.vue";
-import Modals from "../js/Common/Modals.vue";
 import PromptsPage from "../js/Pages/PromptsPage.vue";
+import {createHeadManager} from '@inertiajs/core';
 
 vi.mock('axios');
 
 setActivePinia(createPinia())
+
+const mockedHeadManager = createHeadManager(
+    false,
+    () => '',
+    () => '',
+);
+config.global.mocks.$headManager = mockedHeadManager;
 
 vi.mock('@inertiajs/vue3',async (importOriginal) => ({
     __esModule: true,
