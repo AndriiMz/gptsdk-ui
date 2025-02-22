@@ -70,6 +70,13 @@ const goToRepository = (repositoryId) => {
                     icon="pi pi-credit-card"
                     label="Billing" />
 
+                <Button
+                    as="a"
+                    href="https://join.slack.com/t/saassdk/shared_invite/zt-2yg24cv91-IDyjYgoVgEeqUzuhF6qDYA"
+                    icon="pi pi-question-circle"
+                    variant="text"
+                    target="_blank"
+                    label="Help" />
 
                 <div class="rounded p-3 bg-gray-50 dark:bg-gray-800 flex flex-col gap-2">
                     <div class="flex items-center gap-2">
