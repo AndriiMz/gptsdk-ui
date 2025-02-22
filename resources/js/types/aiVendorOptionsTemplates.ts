@@ -1,4 +1,5 @@
 import {AiVendorType} from "./aiVendorType";
+import {VariableType} from "./variableType";
 
 
 //     'n',
@@ -24,16 +25,16 @@ import {AiVendorType} from "./aiVendorType";
 
 export const AiVendorOptionsTemplates = {
     [AiVendorType.OPENAI]: [
-        {name: "max_tokens"},
+        {name: "max_tokens", type: VariableType.INT},
         {name: "model"},
-        {name: "temperature"},
-        {name: "top_p"},
+        {name: "temperature", type: VariableType.FLOAT},
+        {name: "top_p", type: VariableType.FLOAT},
     ],
     [AiVendorType.ANTHROPIC]: [
-        {name: "max_tokens"},
+        {name: "max_tokens", type: VariableType.INT},
         {name: "model"},
-        {name: "temperature"},
-        {name: "top_p"},
-        {name: "top_k"},
+        {name: "temperature", type: VariableType.FLOAT},
+        {name: "top_p", type: VariableType.FLOAT},
+        {name: "top_k", type: VariableType.FLOAT},
     ]
 }

@@ -1,7 +1,8 @@
 <script setup>
-import {Button, Dialog, IftaLabel, InputText, Textarea} from "primevue";
+import {Button, Dialog, IftaLabel, InputText, InputNumber, Textarea} from "primevue";
 import {useValuesModal} from "../../stores/useValuesModal.js";
 import {storeToRefs} from "pinia";
+import {VariableType} from "../../types/variableType.ts";
 
 
 const store = useValuesModal()
@@ -18,13 +19,22 @@ const { state } = storeToRefs(store)
             @keydown.enter="saveValues">
         <div class="flex flex-col gap-4">
             <IftaLabel v-for="variable in state.variables">
-                <label>{{variable.name}}</label>
-                <InputText
-                    size="small"
-                    :data-testid="`Input.value-${variable.name}`"
-                    type="text"
-                    class="w-full"
-                    v-model="state.values[variable.name]" />
+                <template v-if="variable.type === VariableType.INT || variable.type === VariableType.FLOAT">
+                    <InputNumber
+                        size="small"
+                        :input-id="`Input.value-${variable.name}`"
+                        :data-testid="`Input.value-${variable.name}`"
+                        class="w-full"
+                        v-model="state.values[variable.name]" />
+                </template>
+                <template v-else>
+                    <InputText
+                        size="small"
+                        :data-testid="`Input.value-${variable.name}`"
+                        class="w-full"
+                        v-model="state.values[variable.name]" />
+                </template>
+                <label :for="`Input.value-${variable.name}`">{{variable.name}}</label>
             </IftaLabel>
 
         </div>

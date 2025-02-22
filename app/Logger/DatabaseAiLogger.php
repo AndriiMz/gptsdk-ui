@@ -23,7 +23,7 @@ class DatabaseAiLogger implements AILogger
             'input' => $aiRequest->compiledMessages,
             'output' => $aiRequest->plainResponse,
             'status' => match($aiRequest->responseStatus->value) {
-                \Gptsdk\Enum\Status::SUCCESS => Status::SUCCESS->value,
+                \Gptsdk\Enum\Status::SUCCESS->value => Status::SUCCESS->value,
                 default => Status::ERROR->value,
             }
         ]);

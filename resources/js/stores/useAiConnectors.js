@@ -22,11 +22,20 @@ export const useAiConnectors = defineStore('aiConnectors', () => {
             !Object.values(state.aiConnectors[index].llmOptions).length &&
             state.aiConnectors[index].aiApiKeyId
         ) {
-            state.aiConnectors[index].llmOptions = AiVendorOptionsTemplates[
+            const llmOptions = {}
+
+            const optionTemplate = AiVendorOptionsTemplates[
                 useAiApiKeys().state.aiApiKeysById[
                     state.aiConnectors[index].aiApiKeyId
                 ].aiVendor
-            ] ?? {}
+            ] ?? []
+
+            for (const option of optionTemplate) {
+                llmOptions[option.name] = ""
+            }
+
+
+            state.aiConnectors[index].llmOptions = llmOptions;
         }
 
 

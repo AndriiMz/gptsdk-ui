@@ -1,4 +1,6 @@
 
 export enum VariableType {
-    STRING = 'string'
+    STRING = 'string',
+    INT = 'int',
+    FLOAT = 'float'
 }
