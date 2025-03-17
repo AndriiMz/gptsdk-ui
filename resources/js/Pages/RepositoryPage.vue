@@ -88,6 +88,13 @@ const saveRepository = () => {
                 <br/>
                 Restrict access to your repository and select the following permissions: <b>Contents</b>.
             </Message>
+
+
+            <Message
+                icon="pi pi-lock"
+                severity="success" >
+                GitHub Fine-grained Token has been encrypted using AES-256
+            </Message>
         </div>
 
         <div class="flex flex-col gap-2">

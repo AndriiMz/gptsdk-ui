@@ -37,12 +37,11 @@ onValuesAction(
     ({name, after}) => {
         if (name === SAVE_VALUES_ACTION) {
             after(({values, payload}) => {
-                if (payload.index && payload.target === 'variableValues') {
+                if (payload.index && payload.target === VARIABLE_VALUES_TARGET) {
                     state.variableValues[payload.index] = values
-                } else if (payload.target === 'variableValues') {
+                } else if (payload.target === VARIABLE_VALUES_TARGET) {
                     state.variableValues.push(values)
-                } else if (payload.target === '') {
-                    state.variableValues[payload.index] = values
+                } else if (payload.target === AI_CONNECTOR_TARGET) {
                     saveAiConnector(payload.index)
                 }
             })

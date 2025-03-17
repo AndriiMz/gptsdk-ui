@@ -1,6 +1,6 @@
 <script setup>
 
-import {Button, Dialog, IftaLabel, InputText, Select} from "primevue";
+import {Button, Dialog, IftaLabel, InputText, Message, Select} from "primevue";
 import {useAiApiKeys} from "../../stores/useAiApiKeys.js";
 import {storeToRefs} from "pinia";
 import {AiVendorType} from "../../types/aiVendorType.ts";
@@ -31,7 +31,7 @@ const { setKeyName, saveKey } = store
 
 
 
-            <div>
+            <div class="flex flex-col gap-1">
                 <IftaLabel>
                     <label>Api Key</label>
                     <InputText
@@ -44,6 +44,12 @@ const { setKeyName, saveKey } = store
                 </IftaLabel>
 
                 <Error :error="aiApiKeyForm.errors.key" />
+
+                <Message
+                    icon="pi pi-lock"
+                    severity="success" >
+                    API key has been encrypted using AES-256
+                </Message>
             </div>
 
 

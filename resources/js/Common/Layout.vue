@@ -3,11 +3,9 @@
 import { Button, Toast, Listbox, Avatar, ConfirmDialog } from "primevue";
 import {usePage} from '@inertiajs/vue3'
 import {computed, reactive} from "vue";
-import AddAiApiKeyModal from "../Components/Modals/AddAiApiKeyModal.vue";
-import ValuesModal from "../Components/Modals/ValuesModal.vue";
-import SubscriptionModal from "../Components/Modals/SubscriptionModal.vue";
 import Logo from "./Logo.vue";
 import Modals from "./Modals.vue";
+import GithubStar from "./Banner/GithubStar.vue";
 
 const page = usePage()
 const repositories = computed(() => page.props.repositories)
@@ -30,7 +28,7 @@ const goToRepository = (repositoryId) => {
 </script>
 
 <template>
-    <div class="flex gap-4 max-w-screen">
+    <div class="flex max-w-screen">
         <div class="flex flex-col justify-between gap-2 p-3 w-[250px] h-screen flex-grow-0 flex-shrink-0">
             <div class="flex flex-col gap-2">
                 <div class="flex justify-center">
@@ -78,6 +76,9 @@ const goToRepository = (repositoryId) => {
                     target="_blank"
                     label="Help" />
 
+
+                <GithubStar />
+
                 <div class="rounded p-3 bg-gray-50 dark:bg-gray-800 flex flex-col gap-2">
                     <div class="flex items-center gap-2">
                         <div>
@@ -103,8 +104,12 @@ const goToRepository = (repositoryId) => {
                 </div>
             </div>
         </div>
-        <div style="width: calc(100vw - 290px);" class="flex flex-col gap-4 flex-grow-0 flex-shrink-0">
-            <slot />
+        <div style="width: calc(100vw - 260px); height: 100vh"
+             class="flex flex-col gap-4 flex-grow-0 flex-shrink-0 p-2">
+            <div class="rounded-lg border border-gray-100 bg-[#FEFEFE] dark:border-b-gray-900  p-4 h-full overflow-auto">
+                <slot />
+            </div>
+
         </div>
     </div>
 
