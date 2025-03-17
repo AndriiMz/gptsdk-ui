@@ -17,6 +17,7 @@ jobs:
           script: |
             cd /var/www/gptsdk-ui
             ssh-agent bash -c 'ssh-add ~/.ssh/gptsdk-ui_rsa; git pull';
+            npm run install
             npm run build
             ./artisan cache:clear
             echo 'Deployment to digital ocean finished'
