@@ -106,7 +106,7 @@ const goToRepository = (repositoryId) => {
         </div>
         <div style="width: calc(100vw - 260px); height: 100vh"
              class="flex flex-col gap-4 flex-grow-0 flex-shrink-0 p-2">
-            <div class="rounded-lg border border-gray-100 bg-[#FEFEFE] dark:bg-[#202020] dark:border-b-gray-900  p-4 h-full overflow-auto">
+            <div class="rounded-lg border border-gray-100 bg-[#FEFEFE] dark:bg-[#202020] dark:border-gray-900  p-4 h-full overflow-auto">
                 <slot />
             </div>
 
