@@ -103,6 +103,13 @@ const onTryingToTest = (newValue) => {
 
             <Error :error="promptForm.errors.path" />
         </div>
+
+        <Message
+            icon="pi pi-verified"
+            severity="success" >
+            {{promptForm.sha}}
+        </Message>
+
         <div class="flex gap-2 items-center">
             <SelectButton v-model="state.view"
                           data-testid="Action.testEdit"

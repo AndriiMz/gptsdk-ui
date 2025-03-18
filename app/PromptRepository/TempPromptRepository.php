@@ -45,7 +45,7 @@ class TempPromptRepository implements PromptRepository
     public function getBranches(string $token, string $owner, string $repositoryName): array
     {
         return [
-            new BranchData(name: 'main')
+            new BranchData(name: 'main', commitSha: 'first')
         ];
     }
 

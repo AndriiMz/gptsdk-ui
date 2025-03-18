@@ -22,3 +22,8 @@ and node min version 18
 4. Run `composer install` and `npm i`
 5. Run `./artisan key:generate` and `./artisan migrate`
 6. Enjoy
+
+
+## Run Tests
+1. npm run test
+2. ./artisan test

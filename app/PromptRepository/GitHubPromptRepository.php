@@ -25,7 +25,7 @@ class GitHubPromptRepository implements PromptRepository
         string $owner,
         string $repositoryName
     ): array {
-        return BranchData::collect($this->httpClient->request(
+        $branches = $this->httpClient->request(
             'GET',
             "repos/$owner/$repositoryName/branches",
             [
@@ -35,7 +35,17 @@ class GitHubPromptRepository implements PromptRepository
                     'Authorization' => "Bearer $token"
                 ]
             ]
-        )->toArray(false));
+        )->toArray(false);
+
+        return BranchData::collect(
+            array_map(
+                fn(array $branch) => [
+                    'name' => $branch['name'],
+                    'commitSha' => $branch['commit']['sha']
+                ],
+                $branches
+            )
+        );
     }
 
     public function getList(

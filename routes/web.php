@@ -16,11 +16,20 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Logto\Sdk\LogtoClient;
+use Logto\Sdk\InteractionMode;
 
 Route::get('/callback', [LogtoUiController::class, 'callback']);
 Route::get('/login', function (LogtoClient $client) {
     return redirect($client->signIn(config('app.url') . '/callback'));
 })->name('login');
+
+Route::get('/signup', function (LogtoClient $client) {
+    return redirect($client->signIn(
+        config('app.url') . '/callback',
+        InteractionMode::signUp
+    ));
+})->name('signup');
+
 Route::get('/logout', function (LogtoClient $client) {
     return redirect($client->signOut(config('app.url')));
 })->name('logout');
