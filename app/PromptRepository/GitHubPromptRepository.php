@@ -38,7 +38,7 @@ class GitHubPromptRepository implements PromptRepository
             ]
         )->toArray(false);
 
-        if ($branches['status'] !== 200) {
+        if (isset($branches['status']) && $branches['status'] !== 200) {
             throw new ExpiredApiKeyException();
         }
 
@@ -99,7 +99,7 @@ class GitHubPromptRepository implements PromptRepository
             ]
         )->toArray(false);
 
-        if ($response['status'] !== 200) {
+        if (isset($response['status']) && $response['status'] !== 200) {
             throw new ExpiredApiKeyException();
         }
 
