@@ -5,6 +5,7 @@ namespace App\PromptRepository;
 use App\Data\BranchData;
 use App\Data\PromptFileData;
 use App\Data\RepositoryRowData;
+use App\Exception\ExpiredApiKeyException;
 use App\Interfaces\PromptRepository;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -36,6 +37,10 @@ class GitHubPromptRepository implements PromptRepository
                 ]
             ]
         )->toArray(false);
+
+        if ($branches['status'] !== 200) {
+            throw new ExpiredApiKeyException();
+        }
 
         return BranchData::collect(
             array_map(
@@ -93,6 +98,10 @@ class GitHubPromptRepository implements PromptRepository
                 ]
             ]
         )->toArray(false);
+
+        if ($response['status'] !== 200) {
+            throw new ExpiredApiKeyException();
+        }
 
         if (isset($response['content'])) {
             return new PromptFileData(

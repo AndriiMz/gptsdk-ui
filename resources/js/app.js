@@ -1,8 +1,8 @@
 import '../css/app.css';
 import 'primeicons/primeicons.css';
 
-import { createApp, h } from 'vue'
-import { createInertiaApp } from '@inertiajs/vue3'
+import {createApp, h} from 'vue'
+import {createInertiaApp} from '@inertiajs/vue3'
 import PrimeVue from 'primevue/config';
 import Layout from "./Common/Layout.vue";
 import Aura from '@primevue/themes/aura';
@@ -34,11 +34,11 @@ createInertiaApp({
             .use(createPinia())
             .use(PrimeVue, {
                 theme: {
+                    options: {
+                        darkModeSelector: '.dark'
+                    },
                     preset: {
                         ...Aura,
-                        options: {
-                            darkModeSelector: 'system',
-                        },
                         semantic: {
                             ...Aura.semantic,
                             primary: {

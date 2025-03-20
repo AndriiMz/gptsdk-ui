@@ -2,10 +2,11 @@
 
 import { Button, Toast, Listbox, Avatar, ConfirmDialog } from "primevue";
 import {usePage} from '@inertiajs/vue3'
-import {computed, reactive} from "vue";
+import {computed, reactive, watch} from "vue";
 import Logo from "./Logo.vue";
 import Modals from "./Modals.vue";
 import GithubStar from "./Banner/GithubStar.vue";
+import {useDark} from "@vueuse/core";
 
 const page = usePage()
 const repositories = computed(() => page.props.repositories)
@@ -25,6 +26,11 @@ const goToRepository = (repositoryId) => {
 
     window.location.pathname = `/repository/${repositoryId}/prompts`
 }
+
+const isDark = useDark()
+watch(() => isDark, () => {
+    document.documentElement.classList.toggle('dark');
+})
 </script>
 
 <template>
@@ -94,13 +100,24 @@ const goToRepository = (repositoryId) => {
                         </div>
                     </div>
 
-                    <Button
-                        as="a"
-                        href="/logout"
-                        variant="outlined"
-                        class="w-full"
-                        icon="pi pi-sign-out"
-                        label="Logout" />
+                    <div class="flex gap-2">
+                        <div>
+                            <Button
+                                @click="isDark = !isDark"
+                                :variant="isDark ? '' : 'outlined'"
+                                :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+                            />
+                        </div>
+
+                        <Button
+                            as="a"
+                            href="/logout"
+                            variant="outlined"
+                            class="w-full"
+                            icon="pi pi-sign-out"
+                            label="Logout" />
+                    </div>
+
                 </div>
             </div>
         </div>

@@ -14,7 +14,7 @@ trait WithRepository
 
     protected Repository $repository;
 
-    protected function withRepository()
+    protected function withRepository(string $token = '1234')
     {
         $this->withAuthorizedUser();
         (new TempPromptRepository())->reset();

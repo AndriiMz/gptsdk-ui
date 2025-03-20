@@ -85,11 +85,13 @@ class PromptUiController
             'repository' => RepositoryData::from($repository),
             'path' => $path,
             'branches' => $promptRepository->getBranches(
+                $repository->id,
                 $repository->token,
                 $repository->owner,
                 $repository->name
             ),
             'files' => $promptRepository->getList(
+                $repository->id,
                 $repository->token,
                 $repository->owner,
                 $repository->name,
@@ -101,7 +103,10 @@ class PromptUiController
             return new JsonResponse($json);
         }
 
-        return Inertia::render('PromptsPage', $json);
+        return Inertia::render(
+            'PromptsPage',
+            $json
+        );
     }
 
     public function validate(
