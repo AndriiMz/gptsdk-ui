@@ -11,12 +11,20 @@ import PromptTest from "../Components/Prompt/PromptTest.vue";
 import Error from "../Common/Form/Error.vue";
 
 import dot from "dot-object"
+import PromptMocks from "../Components/Prompt/PromptMocks.vue";
+import {usePromptForm} from "../stores/usePromptForm.js";
+import {storeToRefs} from "pinia";
 
 const page = usePage()
 const toast = useToast()
 const state = reactive({
     view: FormViewType.EDIT
 })
+
+
+const { state: promptFormState } = storeToRefs(usePromptForm())
+promptFormState.value.path = page.props.path
+promptFormState.value.repositoryId = page.props.repository.id
 
 const promptForm = useForm({
     sha: page.props.prompt.sha ?? null,
@@ -70,6 +78,7 @@ const repositoryId = computed(() => {
 onMounted(() => {
     // Triggers .prompt completion
     promptPathProxy.value = page.props.path
+    usePromptForm().loadMocks()
 })
 
 const onTryingToTest = (newValue) => {
@@ -84,6 +93,12 @@ const onTryingToTest = (newValue) => {
         )
     }
 }
+
+const tabs = [
+    {label: FormViewType.TEST, icon: 'pi pi-play'},
+    {label:FormViewType.MOCKS, icon: 'pi pi-flag'},
+    {label:FormViewType.EDIT, icon: 'pi pi-pencil'}
+]
 
 </script>
 
@@ -115,7 +130,14 @@ const onTryingToTest = (newValue) => {
                           data-testid="Action.testEdit"
                           :allow-empty="false"
                           @update:modelValue="onTryingToTest"
-                          :options="[FormViewType.TEST, FormViewType.EDIT]" />
+                          optionLabel="label"
+                          optionValue="label"
+                          :options="tabs" >
+                <template #option="slotProps">
+                    <i :class="slotProps.option.icon"></i>
+                    {{slotProps.option.label}}
+                </template>
+            </SelectButton>
 
             <form @submit.prevent="savePrompt">
                 <Button label="Save"  icon="pi pi-save" type="submit" />
@@ -155,6 +177,12 @@ const onTryingToTest = (newValue) => {
                     :path="promptForm.path"
                     :repository-id="repositoryId"
                     :prompt="promptForm.content"/>
+        </template>
+    </KeepAlive>
+
+    <KeepAlive>
+        <template v-if="state.view === FormViewType.MOCKS">
+            <PromptMocks />
         </template>
     </KeepAlive>
 </template>

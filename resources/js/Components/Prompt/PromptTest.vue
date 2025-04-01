@@ -1,7 +1,7 @@
 <script setup>
 
 import {onMounted, reactive} from "vue";
-import {Button, IftaLabel, Panel, Select, Badge, ProgressSpinner, Splitter, SplitterPanel} from "primevue";
+import {Button, IftaLabel, Panel, Select, Badge, ProgressSpinner, Splitter, SplitterPanel, Tag} from "primevue";
 import {useAiApiKeys} from "../../stores/useAiApiKeys.js";
 import {storeToRefs} from "pinia";
 import {useAiConnectors} from "../../stores/useAiConnectors.js";
@@ -15,6 +15,7 @@ import axios from "axios"
 
 import dot from "dot-object"
 import Error from "../../Common/Form/Error.vue";
+import {usePromptForm} from "../../stores/usePromptForm.js";
 
 const props = defineProps({
     prompt: {type: Object},
@@ -49,6 +50,10 @@ onValuesAction(
     }
 )
 
+
+const promptFormStore = usePromptForm()
+const {state: promptFormState} = storeToRefs(promptFormStore)
+
 const state = reactive({
     errors: {},
 
@@ -57,6 +62,7 @@ const state = reactive({
     isLoading: false,
 
     logs: [],
+
     logsDateAfter: moment(),
     hasOldLogs: true
 })
@@ -87,7 +93,7 @@ const loadOldResults = () => {
         `/ui_api/repository/${props.repositoryId}/prompt/ai_logs/${props.path}`,
         {
             params: {
-                date_after: state.logsDateAfter.format('YYYY-MM-DD')
+                date_after: state.logsDateAfter.format('YYYY-MM-DD HH:mm:ss')
             }
         }
     ).then(({data}) => {
@@ -104,7 +110,6 @@ const loadOldResults = () => {
         state.isLoading = false
     })
 }
-
 
 onMounted(() => {
     aiApiKeysStore.fetchAiApiKeys()
@@ -303,7 +308,16 @@ onMounted(() => {
                                 <StatusTag :status="log.status" />
                                 <TimeTag :time="log.createdAt" />
 
-
+                            </div>
+                            <div>
+                                <Button
+                                    v-if="promptFormState.mocksHashes[log.hash] === undefined"
+                                    icon="pi pi-flag"
+                                        label="Save as Mock"
+                                        size="small"
+                                        @click="promptFormStore.createMock(log)"
+                                        class="w-full" />
+                                <Tag v-else severity="info" class="!p-2 w-full" icon="pi pi-flag" value="Mocked"  />
                             </div>
 
                             <JsonViewer :json="log.variableValues" />
