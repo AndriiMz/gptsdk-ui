@@ -11,6 +11,8 @@ use App\Http\Controllers\UiApi\AiApiKeyUiApiController;
 use App\Http\Controllers\UiApi\AiConnectorUiApiController;
 use App\Http\Controllers\UiApi\AiLogUiApiController;
 use App\Http\Controllers\UiApi\PromptUiApiController;
+use App\Http\Controllers\UiApi\MockUiApiController;
+
 use App\Models\Repository;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -80,8 +82,21 @@ Route::prefix('ui_api')->group(function () {
         [AiLogUiApiController::class, 'getLogs']
     )->where('path', '(.*)');
 
-    Route::delete('/repository/{paidRepository}/prompt/{path?}', [PromptUiApiController::class, 'deletePrompt'])
-        ->where('path', '(.*)');
+    Route::post(
+        '/repository/{paidRepository}/prompt/mock/{path?}',
+        [MockUiApiController::class, 'upsertMock']
+    )->where('path', '(.*)');
+
+    Route::get(
+        '/repository/{paidRepository}/prompt/mock/{path?}',
+        [MockUiApiController::class, 'getMocks']
+    )->where('path', '(.*)');
+
+    Route::delete(
+        '/repository/{paidRepository}/prompt/mock/{path?}',
+        [MockUiApiController::class, 'deleteMock']
+    )->where('path', '(.*)');
+
 
     Route::get('/ai_api_key/', [AiApiKeyUiApiController::class, 'getKeys']);
     Route::delete('/ai_api_key/{aiApiKey}', [AiApiKeyUiApiController::class, 'deleteKey']);
@@ -90,5 +105,11 @@ Route::prefix('ui_api')->group(function () {
     Route::post('/ai_connector', [AiConnectorUiApiController::class, 'upsertAiConnector']);
     Route::post('/ai_connector/{aiConnector}', [AiConnectorUiApiController::class, 'upsertAiConnector']);
     Route::delete('/ai_connector/{aiConnector}', [AiConnectorUiApiController::class, 'deleteAiConnector']);
+
+
+    Route::delete(
+        '/repository/{paidRepository}/prompt/{path?}',
+        [PromptUiApiController::class, 'deletePrompt']
+    )->where('path', '(.*)');
 })->middleware('auth');
 

@@ -8,7 +8,7 @@ use Spatie\LaravelData\Data;
 
 class PromptFormData extends Data
 {
-    private const PROMPT_NAME_REGEX = '/^\/?[^\/\0]+(\/[^\/\0]+)*\.prompt$/';
+    public const PROMPT_NAME_REGEX = '/^\/?[^\/\0]+(\/[^\/\0]+)*\.prompt$/';
 
     public function __construct(
         public readonly PromptData $content,

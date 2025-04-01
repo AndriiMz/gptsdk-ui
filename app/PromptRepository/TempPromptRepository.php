@@ -76,7 +76,7 @@ class TempPromptRepository implements PromptRepository
 
         return new PromptFileData(
             name: $path,
-            content: json_decode($content),
+            content: json_decode($content, true),
             sha: sha1($path)
         );
     }

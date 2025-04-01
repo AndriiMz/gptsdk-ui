@@ -106,6 +106,8 @@ class PromptUiApiController
             )
         )->get();
 
-        return new JsonResponse(['logs' => AiLogData::collect($aiLogs)]);
+        return new JsonResponse([
+            'logs' => AiLogData::collect($aiLogs)
+        ]);
     }
 }

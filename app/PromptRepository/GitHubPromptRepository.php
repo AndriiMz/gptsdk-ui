@@ -108,7 +108,7 @@ class GitHubPromptRepository implements PromptRepository
         array $content,
         ?string $sha = null
     ): void {
-        $this->httpClient->request(
+        $response = $this->httpClient->request(
             'PUT',
             "repos/$owner/$repositoryName/contents/$path",
             [
@@ -120,7 +120,7 @@ class GitHubPromptRepository implements PromptRepository
                 'json' => [
                     'message' => $message,
                     'committer' => [
-                        'name' => $committerName,
+                        'name' => strlen($committerName) > 0 ? $committerName : 'Admin',
                         'email' => $committerEmail
                     ],
                     'content' => base64_encode(json_encode($content)),
