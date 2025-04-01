@@ -12,17 +12,27 @@ use App\Http\Controllers\UiApi\AiConnectorUiApiController;
 use App\Http\Controllers\UiApi\AiLogUiApiController;
 use App\Http\Controllers\UiApi\PromptUiApiController;
 use App\Http\Controllers\UiApi\MockUiApiController;
-
+use App\Http\Controllers\UiApi\RepositoryUiApiController;
 use App\Models\Repository;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Logto\Sdk\LogtoClient;
+use Logto\Sdk\InteractionMode;
+use Stripe\Subscription;
 
 Route::get('/callback', [LogtoUiController::class, 'callback']);
 Route::get('/login', function (LogtoClient $client) {
     return redirect($client->signIn(config('app.url') . '/callback'));
 })->name('login');
+
+Route::get('/signup', function (LogtoClient $client) {
+    return redirect($client->signIn(
+        config('app.url') . '/callback',
+        InteractionMode::signUp
+    ));
+})->name('signup');
+
 Route::get('/logout', function (LogtoClient $client) {
     return redirect($client->signOut(config('app.url')));
 })->name('logout');
@@ -72,6 +82,8 @@ Route::middleware('auth')->group(function () {
 
 
 Route::prefix('ui_api')->group(function () {
+    Route::delete('/repository/{repository}', [RepositoryUiApiController::class, 'delete']);
+
     Route::post(
         '/repository/{paidRepository}/prompt/result/{path?}',
         [PromptUiApiController::class, 'getPromptResults']

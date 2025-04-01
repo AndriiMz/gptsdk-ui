@@ -29,7 +29,7 @@ const repositories = computed(() => page.props.repositories)
             Your repositories
         </h2>
 
-        <div>
+        <div class="flex flex-wrap gap-2">
             <Card class="max-w-96" v-for="repository in repositories">
                 <template #title>
                     {{repository.name}}

@@ -5,6 +5,7 @@ namespace App\PromptRepository;
 use App\Data\BranchData;
 use App\Data\PromptFileData;
 use App\Data\RepositoryRowData;
+use App\Exception\ExpiredApiKeyException;
 use App\Interfaces\PromptRepository;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -25,7 +26,7 @@ class GitHubPromptRepository implements PromptRepository
         string $owner,
         string $repositoryName
     ): array {
-        return BranchData::collect($this->httpClient->request(
+        $branches = $this->httpClient->request(
             'GET',
             "repos/$owner/$repositoryName/branches",
             [
@@ -35,7 +36,21 @@ class GitHubPromptRepository implements PromptRepository
                     'Authorization' => "Bearer $token"
                 ]
             ]
-        )->toArray(false));
+        )->toArray(false);
+
+        if (isset($branches['status']) && $branches['status'] !== 200) {
+            throw new ExpiredApiKeyException();
+        }
+
+        return BranchData::collect(
+            array_map(
+                fn(array $branch) => [
+                    'name' => $branch['name'],
+                    'commitSha' => $branch['commit']['sha']
+                ],
+                $branches
+            )
+        );
     }
 
     public function getList(
@@ -83,6 +98,10 @@ class GitHubPromptRepository implements PromptRepository
                 ]
             ]
         )->toArray(false);
+
+        if (isset($response['status']) && $response['status'] !== 200) {
+            throw new ExpiredApiKeyException();
+        }
 
         if (isset($response['content'])) {
             return new PromptFileData(

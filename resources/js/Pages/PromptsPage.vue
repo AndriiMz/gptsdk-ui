@@ -1,6 +1,6 @@
 <script setup>
 
-import {Select, DataTable, Column, Button, useToast} from 'primevue'
+import {Select, DataTable, Column, Button, useToast, Message} from 'primevue'
 import {computed} from "vue";
 import {Head, usePage} from "@inertiajs/vue3";
 import {NodeType} from "../types/nodeType.ts";
@@ -75,11 +75,17 @@ const isPaidRepository = computed(() => {
         {{repository.name}}/{{page.props.path}}
     </LayoutTitle>
     <div>
-        <div class="flex gap-4 justify-items-between items-center">
+        <div class="flex gap-2 justify-items-between items-center">
             <Select v-model="selectedBranch"
                     :options="branches"
                     optionLabel="name"
                     class="w-full md:w-56" />
+
+            <Message
+                icon="pi pi-verified"
+                severity="success" >
+                {{selectedBranch.commitSha}}
+            </Message>
 
             <div class="flex gap-2">
                 <template v-if="isPaidRepository">

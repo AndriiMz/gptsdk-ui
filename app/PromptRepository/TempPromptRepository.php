@@ -5,6 +5,7 @@ namespace App\PromptRepository;
 use App\Data\BranchData;
 use App\Data\PromptFileData;
 use App\Data\RepositoryRowData;
+use App\Exception\ExpiredApiKeyException;
 use App\Interfaces\PromptRepository;
 use RecursiveDirectoryIterator as RecursiveDirectoryIteratorAlias;
 use RecursiveIteratorIterator;
@@ -44,8 +45,12 @@ class TempPromptRepository implements PromptRepository
 
     public function getBranches(string $token, string $owner, string $repositoryName): array
     {
+        if ($token == 'expired') {
+            throw new ExpiredApiKeyException();
+        }
+
         return [
-            new BranchData(name: 'main')
+            new BranchData(name: 'main', commitSha: 'first')
         ];
     }
 

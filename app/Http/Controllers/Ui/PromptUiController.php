@@ -101,7 +101,10 @@ class PromptUiController
             return new JsonResponse($json);
         }
 
-        return Inertia::render('PromptsPage', $json);
+        return Inertia::render(
+            'PromptsPage',
+            $json
+        );
     }
 
     public function validate(
