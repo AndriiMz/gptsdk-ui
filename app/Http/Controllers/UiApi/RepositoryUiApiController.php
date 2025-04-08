@@ -11,7 +11,10 @@ class RepositoryUiApiController
 {
     public function delete(Repository $repository)
     {
-        if ($repository->subscription_status === SubscriptionStatus::PAID) {
+        if (
+            $repository->subscription_status === SubscriptionStatus::PAID &&
+            !empty($repository->subscription_id)
+        ) {
             \Stripe\Stripe::setApiKey(config('cashier.secret'));
             $subscription = Subscription::retrieve($repository->subscription_id);
             $subscription->cancel();

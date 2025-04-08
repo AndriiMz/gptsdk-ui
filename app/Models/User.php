@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enum\SubscriptionStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,12 +12,12 @@ use Laravel\Cashier\Billable;
 /**
  * @property string $name
  * @property string $email
+ * @property int $free_repositories_limit
  */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, Billable;
-
 
     /**
      * The attributes that are mass assignable.
@@ -29,6 +30,7 @@ class User extends Authenticatable
         'external_id',
         'email_verified',
         'password',
+        'free_repositories_limit'
     ];
 
     /**
@@ -52,5 +54,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function paidRepositories()
+    {
+        return $this->hasMany(Repository::class)->where(
+            'subscription_status',
+            SubscriptionStatus::PAID
+        );
     }
 }

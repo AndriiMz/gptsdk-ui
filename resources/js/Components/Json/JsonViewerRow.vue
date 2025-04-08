@@ -39,14 +39,17 @@ const { togglePath } = props.store
             <div v-if="childs === null" class="text-red-400">
                 NULL
             </div>
-            <div v-else-if="typeof childs !== 'object' && !Array.isArray(childs)">
-                {{childs}}
-            </div>
-            <JsonViewerRow :path="`${path}${path !== ''?'.':''}${key}`"
-                           :rows="childs"
-                           v-else-if="state.collapsedPath[`${path}${path !== ''?'.':''}${key}`] || Array.isArray(rows)"
-                           :depth="depth + 1"
-                           :store="store"/>
+            <template v-else-if="typeof childs !== 'object' && !Array.isArray(childs)">
+                <div class="whitespace-pre">{{childs}}</div>
+            </template>
+            <template v-else-if="state.collapsedPath[`${path}${path !== ''?'.':''}${key}`] || Array.isArray(rows)">
+                <JsonViewerRow :path="`${path}${path !== ''?'.':''}${key}`"
+                               :rows="childs"
+
+                               :depth="depth + 1"
+                               :store="store"/>
+            </template>
+
         </div>
     </div>
 </template>

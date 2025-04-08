@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Ui;
 
 use App\Data\RepositoryFormData;
+use App\Enum\Status;
+use App\Enum\SubscriptionStatus;
 use App\Models\Repository;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class RepositoryUiController
@@ -12,6 +15,8 @@ class RepositoryUiController
         RepositoryFormData $repositoryData,
         ?Repository $repository = null
     ) {
+        /** @var User $user */
+        $user = Auth::user();
         if ($repository) {
             $repository->update(
                 array_merge(
@@ -22,12 +27,13 @@ class RepositoryUiController
                 array_merge(
                     $repositoryData->toArray(),
                     [
-                        'user_id' => Auth::user()->id
+                        'user_id' => $user->id,
+                        'subscription_status' => $user->paidRepositories()->count() < $user->free_repositories_limit ?
+                            SubscriptionStatus::PAID : SubscriptionStatus::FREE
                     ]
                 )
             );
         }
-
 
         return to_route(
             'prompts',

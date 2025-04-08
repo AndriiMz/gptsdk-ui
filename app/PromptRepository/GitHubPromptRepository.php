@@ -171,7 +171,7 @@ class GitHubPromptRepository implements PromptRepository
                 'json' => [
                     'message' => $message,
                     'committer' => [
-                        'name' => $committerName,
+                        'name' => strlen($committerName) > 0 ? $committerName : 'Admin',
                         'email' => $committerEmail
                     ],
                     'sha' => $sha

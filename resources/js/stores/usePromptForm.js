@@ -23,7 +23,9 @@ export const usePromptForm = defineStore('promptForm', () => {
             .get(`/ui_api/repository/${state.repositoryId}/prompt/mock/${state.path}`)
             .then(({data}) => {
                 state.mocks = data.mocks
-                state.mocksHashes = Object.fromEntries(Object.values(data.mocks).map(mock => [mock.hash, true]))
+                state.mocksHashes = data.mocks ?
+                    Object.fromEntries(Object.values(data.mocks).map(mock => [mock.hash, true])) :
+                    []
             })
     }
 

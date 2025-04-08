@@ -41,6 +41,10 @@ export const useAiApiKeys = defineStore('aiApiKeys', () => {
     }
 
     const saveKey = () => {
+        if (aiApiKeyForm.processing) {
+            return
+        }
+
         aiApiKeyForm.post('/ai_api_key', {
             replace: false,
             onSuccess: () => {

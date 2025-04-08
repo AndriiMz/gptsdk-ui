@@ -14,6 +14,7 @@ import dot from "dot-object"
 import PromptMocks from "../Components/Prompt/PromptMocks.vue";
 import {usePromptForm} from "../stores/usePromptForm.js";
 import {storeToRefs} from "pinia";
+import {NEW} from "../types/defaults.ts";
 
 const page = usePage()
 const toast = useToast()
@@ -44,6 +45,12 @@ const savePrompt = () => {
                     detail: 'Prompt has saved successfully!',
                     life: 2000
                 });
+
+                setTimeout(() => {
+                    if (page.props.path === NEW) {
+                        window.location.pathname = `/repository/${page.props.repository.id}/prompt/${promptForm.path}`
+                    }
+                }, 1000)
             }
         }
     )
