@@ -48,7 +48,7 @@ class AiConnectorUiApiController extends Controller
     {
         return new JsonResponse([
             'aiConnectors' => AiConnectorData::collect(
-                AiConnector::all()
+                AiConnector::where('user_id', Auth::user()->id)->get()
             )
         ]);
     }
