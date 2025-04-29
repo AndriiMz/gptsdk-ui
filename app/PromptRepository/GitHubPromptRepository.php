@@ -192,6 +192,6 @@ class GitHubPromptRepository implements PromptRepository
                     'Authorization' => "Bearer $token"
                 ]
             ]
-        )->getStatusCode() === 200;
+        )->getStatusCode() !== 401;
     }
 }
