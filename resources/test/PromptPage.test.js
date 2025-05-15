@@ -17,11 +17,12 @@ const internalState = reactive({errors: {}})
 axios.get = () => {
     return new Promise((resolve) => resolve({data: {
         aiApiKeys: [{name: 'My Key', id: 1, aiVendor: 'openai'}],
-        aiConnectors:[]
+        aiConnectors:[],
+        variableValues: []
     }}))
 }
 axios.delete = vi.fn()
-axios.post = vi.fn()
+axios.post = vi.fn(() => Promise.resolve({ data: {} }))
 
 const mockedHeadManager = createHeadManager(
     false,

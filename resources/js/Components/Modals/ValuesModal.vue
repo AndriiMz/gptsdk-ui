@@ -1,5 +1,5 @@
 <script setup>
-import {Button, Dialog, IftaLabel, InputText, InputNumber, Textarea} from "primevue";
+import {Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber} from "primevue";
 import {useValuesModal} from "../../stores/useValuesModal.js";
 import {storeToRefs} from "pinia";
 import {VariableType} from "../../types/variableType.ts";
@@ -9,6 +9,7 @@ const store = useValuesModal()
 const { saveValues } = store
 const { state } = storeToRefs(store)
 
+
 </script>
 
 <template>
@@ -17,26 +18,37 @@ const { state } = storeToRefs(store)
             :header="state.modalHeader"
             :style="{ width: '50vw', maxHeight: '70vh' }"
             @keydown.enter="saveValues">
-        <div class="flex flex-col gap-4">
-            <IftaLabel v-for="variable in state.variables">
-                <template v-if="variable.type === VariableType.INT || variable.type === VariableType.FLOAT">
-                    <InputNumber
-                        size="small"
-                        :input-id="`Input.value-${variable.name}`"
-                        :data-testid="`Input.value-${variable.name}`"
-                        class="w-full"
-                        v-model="state.values[variable.name]" />
-                </template>
-                <template v-else>
-                    <InputText
-                        size="small"
-                        :data-testid="`Input.value-${variable.name}`"
-                        class="w-full"
-                        v-model="state.values[variable.name]" />
-                </template>
-                <label :for="`Input.value-${variable.name}`">{{variable.name}}</label>
-            </IftaLabel>
+        <div class="flex flex-col">
+            <template v-for="(variable, index) in state.variables">
+                <InputGroup>
+                    <InputText class="!max-w-[150px]" v-model="state.variables[index].name" />
+                    <template v-if="variable.type === VariableType.INT || variable.type === VariableType.FLOAT">
+                        <InputNumber
+                            :data-testid="`Input.value-${variable.name}`"
+                            class="w-full"
+                            v-model="state.values[index]" />
+                    </template>
+                    <template v-else>
+                        <InputText
+                            :data-testid="`Input.value-${variable.name}`"
+                            class="w-full"
+                            v-model="state.values[index]" />
+                    </template>
 
+                    <InputGroupAddon v-if="!state.isFieldsImmutable">
+                        <Button icon="pi pi-times"
+                                @click="state.variables.splice(index, 1)"
+                                severity="danger" variant="text" />
+                    </InputGroupAddon>
+                </InputGroup>
+            </template>
+
+            <div v-if="!state.isFieldsImmutable">
+                <Button icon="pi pi-plus"
+                        @click="state.variables.push({name: ''})"
+                        label="Add Property"
+                        variant="text" />
+            </div>
         </div>
 
         <template #footer>

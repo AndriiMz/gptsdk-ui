@@ -1,8 +1,11 @@
 import {defineStore} from "pinia";
 import {reactive} from "vue";
 import axios from "axios";
+import {usePage} from "@inertiajs/vue3";
 
 export const usePromptForm = defineStore('promptForm', () => {
+    const page = usePage()
+
     const state = reactive({
         focusYIndex: 0,
         focusXIndex: 0,
@@ -10,9 +13,11 @@ export const usePromptForm = defineStore('promptForm', () => {
         mocks: {},
         mocksHashes: [],
 
-        repositoryId: null,
-        path: null
+        repositoryId: page.props.repository.id,
+        path: page.props.path
     })
+
+
     const setPromptMessageFocus = (x, y) => {
         state.focusXIndex = x
         state.focusYIndex = y

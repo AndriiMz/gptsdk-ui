@@ -1,13 +1,12 @@
 <script setup>
 
 import {onMounted, reactive} from "vue";
-import {Button, IftaLabel, Panel, Select, Badge, ProgressSpinner, Splitter, SplitterPanel, Tag} from "primevue";
+import {Badge, Button, IftaLabel, Panel, ProgressSpinner, Select, Splitter, SplitterPanel, Tag} from "primevue";
 import {useAiApiKeys} from "../../stores/useAiApiKeys.js";
 import {storeToRefs} from "pinia";
 import {useAiConnectors} from "../../stores/useAiConnectors.js";
 import JsonViewer from "../Json/JsonViewer.vue";
-import {useValuesModal, SAVE_VALUES_ACTION} from "../../stores/useValuesModal.js";
-import {AiVendorOptionsTemplates} from "../../types/aiVendorOptionsTemplates.ts";
+import {SAVE_VALUES_ACTION, useValuesModal} from "../../stores/useValuesModal.js";
 import moment from "moment";
 import TimeTag from "../../Common/Tags/TimeTag.vue";
 import StatusTag from "../../Common/Tags/StatusTag.vue";
@@ -16,6 +15,7 @@ import axios from "axios"
 import dot from "dot-object"
 import Error from "../../Common/Form/Error.vue";
 import {usePromptForm} from "../../stores/usePromptForm.js";
+import {useVariableValues} from "../../stores/useVariableValues.js";
 
 const props = defineProps({
     prompt: {type: Object},
@@ -30,6 +30,10 @@ const aiConnectorsStore = useAiConnectors()
 const {state: aiConnectorsState} = storeToRefs(aiConnectorsStore)
 const { addAiConnector, deleteAiConnector, saveAiConnector } = aiConnectorsStore
 
+const variableValuesStore = useVariableValues()
+const {state: variableValuesState} = storeToRefs(variableValuesStore)
+const { saveVariableValues, deleteVariableValues } = variableValuesStore
+
 const VARIABLE_VALUES_TARGET = 'variableValues';
 const AI_CONNECTOR_TARGET = 'aiConnector';
 
@@ -38,12 +42,10 @@ onValuesAction(
     ({name, after}) => {
         if (name === SAVE_VALUES_ACTION) {
             after(({values, payload}) => {
-                if (payload.index && payload.target === VARIABLE_VALUES_TARGET) {
-                    state.variableValues[payload.index] = values
-                } else if (payload.target === VARIABLE_VALUES_TARGET) {
-                    state.variableValues.push(values)
+                if (payload.target === VARIABLE_VALUES_TARGET) {
+                    saveVariableValues(payload.index, values)
                 } else if (payload.target === AI_CONNECTOR_TARGET) {
-                    saveAiConnector(payload.index)
+                    saveAiConnector(payload.index, values)
                 }
             })
         }
@@ -57,8 +59,6 @@ const {state: promptFormState} = storeToRefs(promptFormStore)
 const state = reactive({
     errors: {},
 
-    variableValues: [],
-
     isLoading: false,
 
     logs: [],
@@ -67,15 +67,11 @@ const state = reactive({
     hasOldLogs: true
 })
 
-const deleteVariableValues = (index) => {
-    state.variableValues.splice(index, 1)
-}
-
 const getPromptResults = () => {
     state.isLoading = true
     state.errors = {}
     axios.post(`/ui_api/repository/${props.repositoryId}/prompt/result/${props.path}`, {
-        variableValues: state.variableValues,
+        variableValues: variableValuesState.value.variableValues,
         aiConnectors: aiConnectorsState.value.aiConnectors,
         prompt: props.prompt.messages
     }).then(({data}) => {
@@ -85,6 +81,11 @@ const getPromptResults = () => {
     }).finally(() => {
         state.isLoading = false
     })
+}
+
+const removePromptResults = () => {
+    state.logs =  []
+    state.logsDateAfter = moment()
 }
 
 const loadOldResults = () => {
@@ -114,6 +115,7 @@ const loadOldResults = () => {
 onMounted(() => {
     aiApiKeysStore.fetchAiApiKeys()
     aiConnectorsStore.fetchAiConnectors()
+    variableValuesStore.fetchVariableValues()
 })
 
 </script>
@@ -125,44 +127,43 @@ onMounted(() => {
                 <div class="flex justify-between items-center w-full">
                     <span class="p-panel-title">
                         Variable Values
-                        <Badge v-if="state.variableValues.length"
-                               :value="state.variableValues.length" />
+                        <Badge v-if="variableValuesState.variableValues.length" :value="variableValuesState.variableValues.length" />
                     </span>
                     <Button label="Add Variable Values"
                             icon="pi pi-plus"
                             size="small"
                             data-testid="Action.addVariableValues"
                             variant="text"
-                            @click.prevent="openValuesModal(
-                                prompt.variables,
-                                {},
-                                {target: VARIABLE_VALUES_TARGET},
-                                'Add Variable Values'
-                            )"/>
+                            @click.prevent="openValuesModal({
+                                variables: prompt.variables,
+                                values: {},
+                                payload: {target: VARIABLE_VALUES_TARGET},
+                                modalHeader: 'Add Variable Values'
+                            })"/>
                 </div>
             </template>
 
             <div class="flex flex-col gap-2">
                 <div class="flex gap-2 overflow-x-auto">
-                    <div v-if="!state.variableValues.length">
+                    <div v-if="!variableValuesState.variableValues.length">
                         No Variable Values
                     </div>
-                    <div v-for="(variableValues, index) in state.variableValues"
+                    <div v-for="(variableValues, index) in variableValuesState.variableValues"
                          data-testid="ListItem.variableValues"
                          class="border border-gray-100 dark:border-gray-800 p-2 rounded flex flex-col gap-2 min-w-60 flex-shrink-0">
-                        <JsonViewer :json="variableValues" />
+                        <JsonViewer :json="variableValues.variableValues" />
                         <div class="flex gap-2">
                             <Button
                                 size="small"
                                 variant="text"
                                 icon="pi pi-pencil"
                                 aria-label="Edit Variable Values"
-                                @click.prevent="openValuesModal(
-                                    prompt.variables,
-                                     variableValues,
-                                     {index, target: VARIABLE_VALUES_TARGET},
-                                     'Edit Variable Values'
-                                )" />
+                                @click.prevent="openValuesModal({
+                                    variables: prompt.variables,
+                                    values: variableValues.variableValues,
+                                    payload: {index, target: VARIABLE_VALUES_TARGET},
+                                    modalHeader: 'Edit Variable Values'
+                                })" />
 
                             <Button
                                 size="small"
@@ -248,14 +249,15 @@ onMounted(() => {
                             variant="text"
                             icon="pi pi-pencil"
                             aria-label="Edit Variable Values"
-                            @click.prevent="openValuesModal(
-                                 AiVendorOptionsTemplates[
+                            @click.prevent="openValuesModal({
+                                 variables: AiVendorOptionsTemplates[
                                      aiApiKeysState.aiApiKeysById[aiConnectorsState.aiConnectors[index].aiApiKeyId].aiVendor
                                  ],
-                                 aiConnectorsState.aiConnectors[index].llmOptions,
-                                 {index, target: AI_CONNECTOR_TARGET},
-                                 'Edit Connector Options'
-                            )" />
+                                 values: aiConnectorsState.aiConnectors[index].llmOptions,
+                                 payload: {index, target: AI_CONNECTOR_TARGET},
+                                 modalHeader: 'Edit Connector Options',
+                                 isFieldsImmutable: false
+                            })" />
 
                         <Button
                             size="small"
@@ -291,6 +293,13 @@ onMounted(() => {
                                 size="small"
                                 variant="text"
                                 @click.prevent="loadOldResults"/>
+
+                        <Button label="Clear Results"
+                                icon="pi pi-times"
+                                size="small"
+                                variant="text"
+                                severity="danger"
+                                @click.prevent="removePromptResults"/>
                     </div>
                 </div>
             </template>
@@ -301,15 +310,13 @@ onMounted(() => {
 
             <div class="flex flex-col gap-2">
                 <template v-for="(log, index) in state.logs">
-
                     <Splitter>
                         <SplitterPanel :size="25" :minSize="20" class="flex flex-col gap-2 p-2">
                             <div class="flex gap-2">
                                 <StatusTag :status="log.status" />
                                 <TimeTag :time="log.createdAt" />
-
                             </div>
-                            <div>
+                            <div class="flex gap-2">
                                 <Button
                                     v-if="promptFormState.mocksHashes[log.hash] === undefined"
                                     icon="pi pi-flag"
@@ -318,6 +325,12 @@ onMounted(() => {
                                         @click="promptFormStore.createMock(log)"
                                         class="w-full" />
                                 <Tag v-else severity="info" class="!p-2 w-full" icon="pi pi-flag" value="Mocked"  />
+
+                                <Button
+                                    @click="state.logs.splice(index, 1)"
+                                    icon="pi pi-times"
+                                    size="small"
+                                    severity="danger"/>
                             </div>
 
                             <JsonViewer :json="log.variableValues" />

@@ -9,6 +9,7 @@ use App\Http\Controllers\Ui\PromptUiController;
 
 use App\Http\Controllers\UiApi\AiApiKeyUiApiController;
 use App\Http\Controllers\UiApi\AiConnectorUiApiController;
+use App\Http\Controllers\UiApi\AiVariableValueUiApiController;
 use App\Http\Controllers\UiApi\AiLogUiApiController;
 use App\Http\Controllers\UiApi\PromptUiApiController;
 use App\Http\Controllers\UiApi\MockUiApiController;
@@ -19,7 +20,6 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Logto\Sdk\LogtoClient;
 use Logto\Sdk\InteractionMode;
-use Stripe\Subscription;
 
 Route::get('/callback', [LogtoUiController::class, 'callback']);
 Route::get('/login', function (LogtoClient $client) {
@@ -80,7 +80,6 @@ Route::middleware('auth')->group(function () {
 });
 
 
-
 Route::prefix('ui_api')->group(function () {
     Route::delete('/repository/{repository}', [RepositoryUiApiController::class, 'delete']);
 
@@ -118,6 +117,17 @@ Route::prefix('ui_api')->group(function () {
     Route::post('/ai_connector/{aiConnector}', [AiConnectorUiApiController::class, 'upsertAiConnector']);
     Route::delete('/ai_connector/{aiConnector}', [AiConnectorUiApiController::class, 'deleteAiConnector']);
 
+
+    Route::get('/repository/{paidRepository}/variable_values/{path}', [AiVariableValueUiApiController::class, 'getVariableValues']);
+    Route::post('/repository/{paidRepository}/variable_values', [AiVariableValueUiApiController::class, 'upsertVariableValues']);
+    Route::post(
+        '/repository/{paidRepository}/variable_values/{aiVariableValue}',
+        [AiVariableValueUiApiController::class, 'upsertVariableValues']
+    );
+    Route::delete(
+        '/repository/{paidRepository}/variable_values/{aiVariableValue}',
+        [AiVariableValueUiApiController::class, 'deleteVariableValues']
+    );
 
     Route::delete(
         '/repository/{paidRepository}/prompt/{path?}',

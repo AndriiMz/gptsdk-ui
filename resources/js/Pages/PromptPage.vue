@@ -22,11 +22,6 @@ const state = reactive({
     view: FormViewType.EDIT
 })
 
-
-const { state: promptFormState } = storeToRefs(usePromptForm())
-promptFormState.value.path = page.props.path
-promptFormState.value.repositoryId = page.props.repository.id
-
 const promptForm = useForm({
     sha: page.props.prompt.sha ?? null,
     content: page.props.prompt.content,

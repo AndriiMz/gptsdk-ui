@@ -17,7 +17,7 @@ export const useAiConnectors = defineStore('aiConnectors', () => {
         })
     }
 
-    const saveAiConnector = (index) => {
+    const saveAiConnector = (index, values) => {
         if (
             !Object.values(state.aiConnectors[index].llmOptions).length &&
             state.aiConnectors[index].aiApiKeyId
@@ -36,8 +36,9 @@ export const useAiConnectors = defineStore('aiConnectors', () => {
 
 
             state.aiConnectors[index].llmOptions = llmOptions;
+        } else if (values !== null) {
+            state.aiConnectors[index].llmOptions = values;
         }
-
 
         axios.post(`/ui_api/ai_connector/${state.aiConnectors[index].id ?? ''}`, state.aiConnectors[index]).then(() => {
             if (!state.aiConnectors[index].id) {

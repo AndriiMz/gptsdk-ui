@@ -7,6 +7,7 @@ use App\Enum\SubscriptionStatus;
 use App\Guard\LogtoGuard;
 use App\Models\AiApiKey;
 use App\Models\AiConnector;
+use App\Models\AiVariableValue;
 use App\Models\Repository;
 use App\Models\User;
 use App\PromptRepository\GitHubPromptRepository;
@@ -59,6 +60,12 @@ class AppServiceProvider extends ServiceProvider
             $user = auth()->user();
 
             return AiConnector::where('user_id', $user->id)->where('id', $value)->firstOrFail();
+        });
+
+        Route::bind('aiVariableValue', function (string $value) {
+            $user = auth()->user();
+
+            return AiVariableValue::where('user_id', $user->id)->where('id', $value)->firstOrFail();
         });
 
         Route::bind('paidRepository', function (string $value) {
