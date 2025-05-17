@@ -88,6 +88,12 @@ Route::prefix('ui_api')->group(function () {
         [PromptUiApiController::class, 'getPromptResults']
     )->where('path', '(.*)');
 
+    Route::post(
+        '/repository/{paidRepository}/prompt/render/{path?}',
+        [PromptUiApiController::class, 'renderPrompt']
+    )->where('path', '(.*)');
+
+
     Route::get(
         '/repository/{paidRepository}/prompt/ai_logs/{path?}',
         [AiLogUiApiController::class, 'getLogs']

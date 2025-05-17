@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {reactive} from "vue";
 import axios from "axios";
-import {usePage} from "@inertiajs/vue3";
+import {useForm, usePage} from "@inertiajs/vue3";
 
 export const usePromptForm = defineStore('promptForm', () => {
     const page = usePage()
@@ -15,6 +15,13 @@ export const usePromptForm = defineStore('promptForm', () => {
 
         repositoryId: page.props.repository.id,
         path: page.props.path
+    })
+
+
+    const promptForm = useForm({
+        sha: page.props.prompt.sha ?? null,
+        content: page.props.prompt.content,
+        path: null
     })
 
 
@@ -54,13 +61,26 @@ export const usePromptForm = defineStore('promptForm', () => {
         })
     }
 
+    const renderPrompt = async (values) => {
+        const { data } = await axios.post(
+            `/ui_api/repository/${state.repositoryId}/prompt/render/${state.path}`,
+            {
+                variableValues: values,
+                prompt: promptForm.content.messages
+            }
+        )
 
-    return {
-        setPromptMessageFocus,
+        return data.prompt
+    }
+
+    return {setPromptMessageFocus,
         loadMocks,
         deleteMock,
         createMock,
 
-        state
+        renderPrompt,
+
+        state,
+        promptForm
     }
 })

@@ -1,6 +1,6 @@
 <script setup>
-import {computed, defineProps} from 'vue'
-import {useClipboard} from "@vueuse/core";
+import { computed, defineProps } from 'vue'
+import { useClipboard } from "@vueuse/core";
 import { Button } from "primevue";
 
 const props = defineProps({

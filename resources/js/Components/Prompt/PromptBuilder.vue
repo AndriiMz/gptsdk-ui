@@ -6,6 +6,7 @@ import CopyButton from "../../Common/Button/CopyButton.vue";
 import PasteJsonModal from "../Modals/PasteJsonModal.vue";
 import {computed, defineProps, defineEmits} from "vue"
 import {usePromptForm} from "../../stores/usePromptForm.js";
+import CopyRenderedPrompt from "./CopyRenderedPrompt.vue";
 
 
 const props = defineProps({
@@ -79,6 +80,7 @@ const copiedValue = computed(() => {
             <CopyButton label="Copy Json"
                         data-testid="Action.copyJson"
                         :value="copiedValue"/>
+            <CopyRenderedPrompt />
             <PasteJsonModal
                 data-testid="Action.pasteJson"
                 @on-apply="(text) => emits('update:prompt', text)"/>

@@ -11,9 +11,9 @@ class PromptRequestData extends Data
 {
     public function __construct(
         public readonly array $variableValues,
+        public readonly array $prompt,
         /** @var Collection<int, AiConnectorFormData> */
-        public readonly Collection $aiConnectors,
-        public readonly array $prompt
+        public readonly ?Collection $aiConnectors = null
     ) {
 
     }

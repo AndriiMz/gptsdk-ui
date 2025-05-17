@@ -1,5 +1,5 @@
 <script setup>
-import {InputText, Button, useToast, SelectButton, Message, InputGroupAddon, InputGroup} from "primevue"
+import {Button, InputGroup, InputGroupAddon, InputText, Message, SelectButton, useToast} from "primevue"
 
 
 import {Head, useForm, usePage} from "@inertiajs/vue3";
@@ -13,7 +13,6 @@ import Error from "../Common/Form/Error.vue";
 import dot from "dot-object"
 import PromptMocks from "../Components/Prompt/PromptMocks.vue";
 import {usePromptForm} from "../stores/usePromptForm.js";
-import {storeToRefs} from "pinia";
 import {NEW} from "../types/defaults.ts";
 
 const page = usePage()
@@ -22,11 +21,7 @@ const state = reactive({
     view: FormViewType.EDIT
 })
 
-const promptForm = useForm({
-    sha: page.props.prompt.sha ?? null,
-    content: page.props.prompt.content,
-    path: null
-})
+const { promptForm } = usePromptForm()
 
 const savePrompt = () => {
     promptForm.post(

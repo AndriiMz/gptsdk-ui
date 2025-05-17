@@ -1,4 +1,4 @@
-import {describe, expect, test, vi} from 'vitest'
+import {describe, expect, test, vi, beforeEach} from 'vitest'
 import {mount, config} from '@vue/test-utils'
 import PromptPage from "../js/Pages/PromptPage.vue";
 import {createPinia, setActivePinia} from "pinia";
@@ -61,11 +61,15 @@ vi.mock('@inertiajs/vue3',async (importOriginal) => ({
     })
 }))
 
-
-describe('Prompt Page', () => {
+beforeEach(() => {
+    // Create a new Pinia instance and set it as active
+    const pinia = createPinia();
+    setActivePinia(pinia);
 
     const modals = mount(Modals, vueWrapperOptions)
+});
 
+describe('Prompt Page', () => {
     test('Prompt Page > Add Variable', async () => {
         const wrapper = mount(PromptPage, vueWrapperOptions)
         await nextTick()
@@ -153,6 +157,7 @@ describe('Prompt Page', () => {
         await nextTick()
 
 
+        const html = wrapper.html()
         const whoInput =
             await vi.waitUntil(() => {
                 return document.querySelector('[data-testid="Input.value-who"]')

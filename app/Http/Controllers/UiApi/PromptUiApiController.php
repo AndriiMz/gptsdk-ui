@@ -110,4 +110,29 @@ class PromptUiApiController
             'logs' => AiLogData::collect($aiLogs)
         ]);
     }
+
+    public function renderPrompt(
+        Repository $paidRepository,
+        string $path,
+        PromptRequestData $promptRequestData
+    ): JsonResponse {
+        $messages = (new DoubleBracketsPromptCompiler())->compile(
+            new AiRequest(
+                apiKey: '',
+                aiVendor: '',
+                llmOptions: [],
+                compilerType: CompilerType::DOUBLE_BRACKETS,
+                messages: array_map(
+                    fn(array $prompt) => new PromptMessage(
+                        role: $prompt['role'],
+                        content: $prompt['content']
+                    ),
+                    $promptRequestData->prompt
+                ),
+                variableValues: $promptRequestData->variableValues,
+            )
+        );
+
+        return new JsonResponse(['prompt' => $messages]);
+    }
 }
