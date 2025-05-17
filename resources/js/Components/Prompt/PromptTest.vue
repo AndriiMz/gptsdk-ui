@@ -16,6 +16,8 @@ import dot from "dot-object"
 import Error from "../../Common/Form/Error.vue";
 import {usePromptForm} from "../../stores/usePromptForm.js";
 import {useVariableValues} from "../../stores/useVariableValues.js";
+import {toValuesModalVariables} from "../../types/aiVendorOptionsTemplates";
+
 
 const props = defineProps({
     prompt: {type: Object},
@@ -71,7 +73,7 @@ const getPromptResults = () => {
     state.isLoading = true
     state.errors = {}
     axios.post(`/ui_api/repository/${props.repositoryId}/prompt/result/${props.path}`, {
-        variableValues: variableValuesState.value.variableValues,
+        variableValues: variableValuesState.value.variableValues.map((item) => item.variableValues),
         aiConnectors: aiConnectorsState.value.aiConnectors,
         prompt: props.prompt.messages
     }).then(({data}) => {
@@ -241,7 +243,6 @@ onMounted(() => {
                         <Error :error="state.errors?.aiConnectors?.[index]?.llmOptions" />
                     </div>
 
-
                     <div>
                         <Button
                             v-if="aiConnectorsState.aiConnectors[index].aiApiKeyId"
@@ -250,9 +251,9 @@ onMounted(() => {
                             icon="pi pi-pencil"
                             aria-label="Edit Variable Values"
                             @click.prevent="openValuesModal({
-                                 variables: AiVendorOptionsTemplates[
-                                     aiApiKeysState.aiApiKeysById[aiConnectorsState.aiConnectors[index].aiApiKeyId].aiVendor
-                                 ],
+                                 variables: toValuesModalVariables(
+                                     aiConnectorsState.aiConnectors[index].llmOptions
+                                 ),
                                  values: aiConnectorsState.aiConnectors[index].llmOptions,
                                  payload: {index, target: AI_CONNECTOR_TARGET},
                                  modalHeader: 'Edit Connector Options',
