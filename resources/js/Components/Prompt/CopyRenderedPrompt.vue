@@ -19,7 +19,7 @@ onValuesAction(
     ({name, after}) => {
         if (name === SAVE_VALUES_ACTION) {
             after(async ({values}) => {
-                copy(await renderPrompt(values))
+                copy(JSON.stringify(await renderPrompt(values)))
             })
         }
     }
