@@ -28,14 +28,17 @@ class MockTest extends TestCase
         $variableValues = [['who' => 'moroz']];
         $promptPath = 'prompt1.prompt';
         // Creates prompt
-        $this->post(
-            "/repository/$repositoryId/prompt",
+        $response = $this->post(
+            "/repository/$repositoryId/file",
             [
-                'content' => $promptContent,
+                'content' => json_encode($promptContent),
                 'path' => $promptPath,
                 'sha' => ''
-            ]
+            ],
+            ['accept' => 'application/json']
         );
+        $response->assertStatus(201);
+
 
         // Test prompt
         $this->mockAI();
@@ -43,7 +46,7 @@ class MockTest extends TestCase
             "/ui_api/repository/$repositoryId/prompt/result/$promptPath",
             [
                 'variableValues' => $variableValues,
-                'prompt' => $promptContent['messages'],
+                'prompt' => $promptContent,
                 'aiConnectors' => [
                     [
                         'llmOptions' => $this->aiConnector->llm_options,
@@ -59,13 +62,14 @@ class MockTest extends TestCase
         );
 
 
-        $this->post(
+        $response = $this->post(
             "/ui_api/repository/$repositoryId/prompt/mock/$promptPath",
             [
                 'variableValues' => [['who' => 'moroz']],
-                'output' =>  $json['logs'][0]['output']
+                'output' => $json['logs'][0]['output']
             ]
         );
+        $response->assertStatus(204);
 
         $response = $this->get("/ui_api/repository/$repositoryId/prompt/mock/$promptPath");
         $json = $response->json();

@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AiVariableValueUiApiController extends Controller
 {
-    public function getVariableValues(Repository $paidRepository, string $path)
+    public function getVariableValues(Repository $paidRepository, Request $request)
     {
         return response()->json(
             [
                 'variableValues' => VariableValueData::collect(
                     AiVariableValue::query()
-                        ->where('path', $path)
+                        ->where('path', $request->get('path'))
                         ->where('repository_id', $paidRepository->id)
                         ->where('user_id', Auth::user()->id)
                         ->get()

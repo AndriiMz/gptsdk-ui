@@ -18,7 +18,7 @@ class MockUiApiController
         string $path
     ) {
         $promptRepository = $promptRepositoryProvider->getPromptRepository($paidRepository->type->value);
-        $prompt = $promptRepository->getPrompt(
+        $prompt = $promptRepository->getFile(
             token: $paidRepository->token,
             owner: $paidRepository->owner,
             repositoryName: $paidRepository->name,
@@ -40,7 +40,7 @@ class MockUiApiController
         $user = Auth::user();
         $mockHash = $request->get('hash');
         $promptRepository = $promptRepositoryProvider->getPromptRepository($paidRepository->type->value);
-        $prompt = $promptRepository->getPrompt(
+        $prompt = $promptRepository->getFile(
             token: $paidRepository->token,
             owner: $paidRepository->owner,
             repositoryName: $paidRepository->name,
@@ -58,7 +58,7 @@ class MockUiApiController
             message: 'Mock Added',
             committerName: $user->name,
             committerEmail: $user->email,
-            content: $updatedContent,
+            content: json_encode($updatedContent),
             sha: $prompt->sha
         );
 
@@ -75,7 +75,7 @@ class MockUiApiController
         $user = Auth::user();
         $promptRepository = $promptRepositoryProvider->getPromptRepository($paidRepository->type->value);
 
-        $prompt = $promptRepository->getPrompt(
+        $prompt = $promptRepository->getFile(
             token: $paidRepository->token,
             owner: $paidRepository->owner,
             repositoryName: $paidRepository->name,
@@ -101,7 +101,7 @@ class MockUiApiController
             message: 'Mock Added',
             committerName: $user->name,
             committerEmail: $user->email,
-            content: $updatedContent,
+            content: json_encode($updatedContent),
             sha: $prompt->sha
         );
 

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Ui;
 
-use App\Data\PromptFileData;
-use App\Data\PromptFormData;
+use App\Data\FileData;
+use App\Data\FileFormData;
+use App\Data\PromptData;
 use App\Data\RepositoryData;
 use App\Models\Repository;
 use App\Models\User;
 use App\Providers\PromptRepositoryProvider;
-use Gptsdk\Types\PromptMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class PromptUiController
+class FileUiController
 {
     public function edit(
         PromptRepositoryProvider $promptRepositoryProvider,
@@ -24,51 +24,59 @@ class PromptUiController
         string $path = ''
     ) {
         $promptRepository = $promptRepositoryProvider->getPromptRepository($paidRepository->type->value);
-        $emptyPrompt = ['messages' => [['role' => '', 'content' => '']], 'variables' => []];
 
         if (str_ends_with($path, '.prompt')) {
-            $prompt = $promptRepository->getPrompt(
+            $prompt = $promptRepository->getFile(
                 $paidRepository->token,
                 $paidRepository->owner,
                 $paidRepository->name,
                 $path
             );
 
-            if (null === $prompt) {
-                throw new NotFoundHttpException();
-            }
+            $isEmpty = true;
+            $isBroken = false;
+            if (null !== $prompt) {
+                $isEmpty = !is_array($prompt->content);
+                $isBroken = Validator::make(
+                    !$isEmpty ? $prompt->content : [],
+                    [
+                        'messages.*.role' => 'required',
+                        'messages.*.content' => 'required',
+                        'variables.*.name' => 'required',
+                        'variables.*.type' => 'required'
+                    ]
+                )->fails();
 
-            $validator = Validator::make(
-                $prompt->content,
-                [
-                    'messages.*.role' => 'required',
-                    'messages.*.content' => 'required',
-                    'variables.*.name' => 'required',
-                    'variables.*.type' => 'required'
-                ]
-            );
+            }
 
             return Inertia::render('PromptPage', [
                 'repository' => RepositoryData::from($paidRepository),
                 'path' => $path,
-                'prompt' => $validator->fails() ?
-                    new PromptFileData(
-                        name: $prompt->name,
-                        sha: $prompt->sha,
-                        content: $emptyPrompt
+                'file' => $isEmpty || $isBroken ?
+                    new FileData(
+                        name: $prompt?->name ?? '',
+                        sha: $prompt?->sha ?? '',
+                        content:  ['messages' => [['role' => '', 'content' => '']], 'variables' => []]
                     ) :
                     $prompt,
-                'isBrokenPromptFile' => $validator->fails()
+                'isBrokenPromptFile' => $isBroken
             ]);
         }
 
-        return Inertia::render('PromptPage', [
+        $file = $promptRepository->getFile(
+            $paidRepository->token,
+            $paidRepository->owner,
+            $paidRepository->name,
+            $path
+        );
+
+        return Inertia::render('MdPage', [
             'repository' => RepositoryData::from($paidRepository),
             'path' => $path,
-            'prompt' => new PromptFileData(
-                name: '',
-                content: $emptyPrompt,
-                sha: ''
+            'file' => $file ?? new FileData(
+                name: $file?->name ?? '',
+                sha: $file?->sha ?? '',
+                content: ''
             )
         ]);
     }
@@ -102,7 +110,7 @@ class PromptUiController
         }
 
         return Inertia::render(
-            'PromptsPage',
+            'FilesPage',
             $json
         );
     }
@@ -110,15 +118,16 @@ class PromptUiController
     public function validate(
         PromptRepositoryProvider $promptRepositoryProvider,
         Repository $paidRepository,
-        PromptFormData $promptFormData
+        FileFormData $fileFormData
     ) {
         return redirect()->back();
     }
 
-    public function upsertPrompt(
+    public function upsertFile(
         PromptRepositoryProvider $promptRepositoryProvider,
         Repository $paidRepository,
-        PromptFormData $promptFormData
+        FileFormData $fileFormData,
+        Request $request,
     ) {
         /** @var User $user */
         $user = Auth::user();
@@ -128,13 +137,17 @@ class PromptUiController
             token: $paidRepository->token,
             owner: $paidRepository->owner,
             repositoryName: $paidRepository->name,
-            path: $promptFormData->path,
+            path: $fileFormData->path,
             message: 'Prompt Update',
             committerName: $user->name,
             committerEmail: $user->email,
-            content: $promptFormData->content->toArray(),
-            sha: $promptFormData->sha
+            content: $fileFormData->content,
+            sha: $fileFormData->sha
         );
+
+        if ($request->headers->get('Accept') === 'application/json') {
+            return new JsonResponse([], 201);
+        }
 
         return redirect()->back();
     }

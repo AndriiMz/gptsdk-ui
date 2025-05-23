@@ -3,7 +3,7 @@ import {config, mount} from '@vue/test-utils'
 import {createPinia, setActivePinia} from "pinia";
 import {nextTick} from "vue";
 import {vueWrapperOptions} from "./helper.js";
-import PromptsPage from "../js/Pages/PromptsPage.vue";
+import FilesPage from "../js/Pages/FilesPage.vue";
 import {createHeadManager} from '@inertiajs/core';
 
 vi.mock('axios');
@@ -39,9 +39,9 @@ vi.mock('@inertiajs/vue3',async (importOriginal) => ({
 }))
 
 
-describe('Prompts Page', () => {
-    test('Prompts Page > Paid Repository > Edit Prompt', async () => {
-        const wrapper = mount(PromptsPage, vueWrapperOptions)
+describe('Files Page', () => {
+    test('Files Page > Paid Repository > Edit Prompt', async () => {
+        const wrapper = mount(FilesPage, vueWrapperOptions)
         await nextTick()
 
         expect(wrapper.findAll('[data-testid="Action.editPrompt"]').length).toBe(1)

@@ -13,13 +13,15 @@ export const useAiApiKeys = defineStore('aiApiKeys', () => {
     const state = reactive({
         aiApiKeys: [],
         aiApiKeysById: {},
-        isAddApiKeyModalOpen: false
+        isApiKeyModalOpen: false,
+        editApiKeyId: null,
     })
 
     const aiApiKeyForm = useForm({
         name: '',
         aiVendor: '',
-        key: ''
+        key: '',
+        defaultModel: ''
     })
 
     const fetchAiApiKeys = (force = false) => {
@@ -31,13 +33,21 @@ export const useAiApiKeys = defineStore('aiApiKeys', () => {
         }
     }
 
+    const editApiKey = (apiKeyData) => {
+        state.editApiKeyId = apiKeyData.id
+        Object.assign(aiApiKeyForm, apiKeyData)
+        state.isApiKeyModalOpen = true
+    }
+
     const addKey = () => {
+        state.editApiKeyId = null
         Object.assign(aiApiKeyForm, {
             name: '',
             aiVendor: AiVendorType.OPENAI,
-            key: ''
+            key: '',
+            defaultModel: ''
         })
-        state.isAddApiKeyModalOpen = true
+        state.isApiKeyModalOpen = true
     }
 
     const saveKey = () => {
@@ -45,11 +55,13 @@ export const useAiApiKeys = defineStore('aiApiKeys', () => {
             return
         }
 
-        aiApiKeyForm.post('/ai_api_key', {
+        aiApiKeyForm.post(`/ai_api_key/${state.editApiKeyId}`, {
             replace: false,
             onSuccess: () => {
                 useAiApiKeys().fetchAiApiKeys(true)
-                state.isAddApiKeyModalOpen = false
+                state.isApiKeyModalOpen = false
+                state.editApiKeyId = null
+
                 toast.add({
                     severity: 'info',
                     summary: 'Info',
@@ -103,6 +115,7 @@ export const useAiApiKeys = defineStore('aiApiKeys', () => {
         state,
         addKey,
         saveKey,
+        editApiKey,
         deleteKey,
         fetchAiApiKeys,
         setKeyName

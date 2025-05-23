@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\UiApi;
 
+use App\Converter\VariableValuesConverter;
 use App\Data\AiLogData;
 use App\Data\PromptRequestData;
 use App\Logger\DatabaseAiLogger;
@@ -53,7 +54,9 @@ class PromptUiApiController
         Repository $paidRepository,
         string $path,
         PromptRequestData $promptRequestData,
-        AiVendorProvider $aiVendorProvider
+        AiVendorProvider $aiVendorProvider,
+        VariableValuesConverter $converter,
+        PromptRepositoryProvider $promptRepositoryProvider,
     ): JsonResponse {
         $completionAi = new CompletionAi(
             $aiVendorProvider->getAllAiVendors(),
@@ -75,19 +78,29 @@ class PromptUiApiController
                 role: $prompt['role'],
                 content: $prompt['content']
             ),
-            $promptRequestData->prompt
+            $promptRequestData->prompt['messages']
         );
-        foreach ($promptRequestData->aiConnectors as $aiConnector) {
-            foreach ($promptRequestData->variableValues as $variableValues) {
-                $aiApiKey = AiApiKey::findOrFail($aiConnector->aiApiKeyId);
 
+        $compiledVariableValues = array_map(
+            fn($variableValues) => $converter->convert(
+                $promptRepositoryProvider,
+                $paidRepository,
+                $variableValues,
+                $promptRequestData->prompt['variables']
+            ),
+            $promptRequestData->variableValues
+        );
+
+        foreach ($promptRequestData->aiConnectors as $aiConnector) {
+            foreach ($compiledVariableValues as $compiledVariableValue) {
+                $aiApiKey = AiApiKey::findOrFail($aiConnector->aiApiKeyId);
                 $aiRequests[] = new AiRequest(
                     apiKey: $aiApiKey->key,
                     aiVendor: $aiApiKey->ai_vendor,
                     llmOptions: $aiConnector->llmOptions,
                     compilerType: CompilerType::DOUBLE_BRACKETS,
                     messages: $promptMessages,
-                    variableValues: $variableValues,
+                    variableValues: $compiledVariableValue,
                     payload: [
                         'repositoryId' => $paidRepository->id,
                         'aiApiKeyId' => $aiConnector->aiApiKeyId,
@@ -114,7 +127,9 @@ class PromptUiApiController
     public function renderPrompt(
         Repository $paidRepository,
         string $path,
-        PromptRequestData $promptRequestData
+        PromptRequestData $promptRequestData,
+        VariableValuesConverter $converter,
+        PromptRepositoryProvider $promptRepositoryProvider,
     ): JsonResponse {
         $messages = (new DoubleBracketsPromptCompiler())->compile(
             new AiRequest(
@@ -127,9 +142,14 @@ class PromptUiApiController
                         role: $prompt['role'],
                         content: $prompt['content']
                     ),
-                    $promptRequestData->prompt
+                    $promptRequestData->prompt['messages']
                 ),
-                variableValues: $promptRequestData->variableValues,
+                variableValues: $converter->convert(
+                    $promptRepositoryProvider,
+                    $paidRepository,
+                    $promptRequestData->variableValues,
+                    $promptRequestData->prompt['variables']
+                ),
             )
         );
 

@@ -11,6 +11,7 @@ class AiLogData extends Data
     #[Computed]
     public string $hash;
 
+
     public function __construct(
         public readonly int $id,
         public readonly array $variableValues,
@@ -18,7 +19,8 @@ class AiLogData extends Data
         public readonly array $input,
         public readonly array $output,
         public readonly \DateTime $createdAt,
-        public readonly Status $status
+        public readonly Status $status,
+        public readonly string $aiVendor,
     ) {
         $this->hash = sha1(json_encode([$variableValues, $output]));
     }

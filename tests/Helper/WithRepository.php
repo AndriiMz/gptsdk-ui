@@ -36,7 +36,7 @@ trait WithRepository
     protected function getRepositoryPrompts()
     {
         $repositoryId = $this->repository->id;
-        $response = $this->get("/repository/$repositoryId/prompts/", [
+        $response = $this->get("/repository/$repositoryId/files/", [
             'Accept' => 'application/json'
         ]);
 

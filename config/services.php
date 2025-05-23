@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'github' => [
+        'prompts' => [
+            'owner' => 'AndriiMz',
+            'repositoryName' => 'gptsdk-prompts',
+            'token' => env('GITHUB_TOKEN'),
+        ]
+    ]
+
 ];

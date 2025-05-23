@@ -13,10 +13,10 @@ const { setKeyName, saveKey } = store
 </script>
 
 <template>
-    <Dialog v-model:visible="state.isAddApiKeyModalOpen"
+    <Dialog v-model:visible="state.isApiKeyModalOpen"
             modal
             :style="{ width: '50vw', maxHeight: '70vh' }"
-            header="Create AI API Key">
+            :header="state.editApiKeyId ? 'Edit AI API Key' : 'Create AI API Key'">
         <div class="flex flex-col gap-4">
             <IftaLabel>
                 <Select
@@ -25,13 +25,14 @@ const { setKeyName, saveKey } = store
                     :options="[AiVendorType.OPENAI, AiVendorType.ANTHROPIC]"
                     type="text"
                     class="w-full"
+                    :disabled="state.editApiKeyId"
                     v-model="aiApiKeyForm.aiVendor" />
                 <label for="dd-ai-vendor">AI</label>
             </IftaLabel>
 
 
 
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1" v-if="!state.editApiKeyId">
                 <IftaLabel>
                     <label>Api Key</label>
                     <InputText
@@ -63,6 +64,19 @@ const { setKeyName, saveKey } = store
                     v-model="aiApiKeyForm.name"/>
 
                 <Error :error="aiApiKeyForm.errors.name" />
+            </IftaLabel>
+
+
+            <IftaLabel>
+                <label>Default Model</label>
+                <InputText
+                    size="small"
+                    type="text"
+                    class="w-full"
+                    :invalid="aiApiKeyForm.errors.defaultModel"
+                    v-model="aiApiKeyForm.defaultModel"/>
+
+                <Error :error="aiApiKeyForm.errors.defaultModel" />
             </IftaLabel>
 
         </div>

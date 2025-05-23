@@ -5,7 +5,7 @@ use App\Data\RepositoryData;
 use App\Http\Controllers\Ui\AiApiKeyUiController;
 use App\Http\Controllers\Ui\LogtoUiController;
 use App\Http\Controllers\Ui\RepositoryUiController;
-use App\Http\Controllers\Ui\PromptUiController;
+use App\Http\Controllers\Ui\FileUiController;
 
 use App\Http\Controllers\UiApi\AiApiKeyUiApiController;
 use App\Http\Controllers\UiApi\AiConnectorUiApiController;
@@ -14,6 +14,8 @@ use App\Http\Controllers\UiApi\AiLogUiApiController;
 use App\Http\Controllers\UiApi\PromptUiApiController;
 use App\Http\Controllers\UiApi\MockUiApiController;
 use App\Http\Controllers\UiApi\RepositoryUiApiController;
+use App\Http\Controllers\UiApi\AiGenerateUiApiController;
+
 use App\Models\Repository;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -48,16 +50,16 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get(
-        '/repository/{paidRepository}/prompt/{path?}',
-        [PromptUiController::class, 'edit']
+        '/repository/{paidRepository}/file/{path?}',
+        [FileUiController::class, 'edit']
     )->where('path', '(.*)');
 
     Route::get(
-        '/repository/{repository}/prompts/{path?}',
-        [PromptUiController::class, 'list']
-    )->where('path', '(.*)')->name('prompts');
+        '/repository/{repository}/files/{path?}',
+        [FileUiController::class, 'list']
+    )->where('path', '(.*)')->name('files');
 
-    Route::get('/ai_api_key', fn() => Inertia::render('ApiKeysPage'));
+    Route::get('/ai_api_key', [AiApiKeyUiController::class, 'index']);
     Route::post('/ai_api_key', [AiApiKeyUiController::class, 'createKey']);
     Route::post('/ai_api_key/{aiApiKey}', [AiApiKeyUiController::class, 'updateKey']);
 
@@ -75,13 +77,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/repository/{repository}', [RepositoryUiController::class, 'upsertRepository']);
     Route::get('/repository/{repository}/purchase', [RepositoryUiController::class, 'purchaseRepository']);
 
-    Route::post('/repository/{paidRepository}/prompt', [PromptUiController::class, 'upsertPrompt']);
-    Route::post('/repository/{paidRepository}/prompt/validate', [PromptUiController::class, 'validate']);
+    Route::post('/repository/{paidRepository}/file', [FileUiController::class, 'upsertFile']);
+    Route::post('/repository/{paidRepository}/file/validate', [FileUiController::class, 'validate']);
 });
 
 
 Route::prefix('ui_api')->group(function () {
     Route::delete('/repository/{repository}', [RepositoryUiApiController::class, 'delete']);
+    Route::get('/repository/{repository}/files/{path?}', [RepositoryUiApiController::class, 'getFiles'])
+        ->where('path', '(.*)');
 
     Route::post(
         '/repository/{paidRepository}/prompt/result/{path?}',
@@ -124,7 +128,10 @@ Route::prefix('ui_api')->group(function () {
     Route::delete('/ai_connector/{aiConnector}', [AiConnectorUiApiController::class, 'deleteAiConnector']);
 
 
-    Route::get('/repository/{paidRepository}/variable_values/{path}', [AiVariableValueUiApiController::class, 'getVariableValues']);
+    Route::get(
+        '/repository/{paidRepository}/variable_values',
+        [AiVariableValueUiApiController::class, 'getVariableValues']
+    );
     Route::post('/repository/{paidRepository}/variable_values', [AiVariableValueUiApiController::class, 'upsertVariableValues']);
     Route::post(
         '/repository/{paidRepository}/variable_values/{aiVariableValue}',
@@ -139,5 +146,8 @@ Route::prefix('ui_api')->group(function () {
         '/repository/{paidRepository}/prompt/{path?}',
         [PromptUiApiController::class, 'deletePrompt']
     )->where('path', '(.*)');
+
+    Route::get('/ai_generate/', [AiGenerateUiApiController::class, 'getForm']);
+    Route::post('/ai_generate/', [AiGenerateUiApiController::class, 'generate']);
 })->middleware('auth');
 

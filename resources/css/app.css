@@ -17,3 +17,178 @@ html {
 .caption {
     @apply text-lg;
 }
+
+/** compare with https://github.com/sindresorhus/generate-github-markdown-css **/
+.markdown-body {
+    @apply text-[16px] leading-normal break-words text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-900 font-sans antialiased;
+    @apply my-0 mx-auto w-full;
+
+    & a {
+        @apply text-blue-600 dark:text-blue-400 no-underline hover:underline;
+    }
+
+    & h1, & h2, & h3, & h4, & h5, & h6 {
+        @apply font-semibold leading-tight mt-6 mb-4;
+    }
+
+    & h1 {
+        @apply text-4xl pb-3 mb-4 border-b border-gray-200 dark:border-gray-700;
+    }
+
+    & h2 {
+        @apply text-2xl pb-3 border-b border-gray-200 dark:border-gray-700;
+    }
+
+    & h3 {
+        @apply text-xl;
+    }
+
+    & h4 {
+        @apply text-base;
+    }
+
+    & h5 {
+        @apply text-sm;
+    }
+
+    & h6 {
+        @apply text-sm text-gray-600 dark:text-gray-400;
+    }
+
+    & p {
+        @apply my-4;
+    }
+
+    & blockquote {
+        @apply pl-4 border-l-4 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 my-4 mx-0;
+    }
+
+    & hr {
+        @apply h-px my-6 bg-gray-200 dark:bg-gray-700 border-0;
+    }
+
+    & table {
+        @apply w-full max-w-full overflow-auto border-collapse;
+
+        & th {
+            @apply font-semibold;
+        }
+
+        & th, & td {
+            @apply border border-gray-200 dark:border-gray-700 p-2;
+        }
+
+        & tr {
+            @apply bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700;
+        }
+
+        & tr:nth-child(2n) {
+            @apply bg-gray-50 dark:bg-gray-800;
+        }
+    }
+
+    & img {
+        @apply max-w-full box-content bg-transparent;
+    }
+
+    & code, & kbd, & pre, & samp {
+        @apply font-mono text-sm;
+    }
+
+    & pre {
+        @apply p-4 overflow-auto bg-gray-100 dark:bg-gray-800 rounded-lg my-4;
+    }
+
+    & ul, & ol {
+        @apply pl-8 mb-4;
+    }
+
+    & ul {
+        @apply list-disc;
+    }
+
+    & ol {
+        @apply list-decimal;
+    }
+
+    & ul ul, & ul ol, & ol ol, & ol ul {
+        @apply my-0;
+    }
+
+    & li + li {
+        @apply mt-1;
+    }
+
+    & dl {
+        @apply p-0;
+
+        & dt {
+            @apply p-0 mt-4 text-base italic font-semibold;
+        }
+
+        & dd {
+            @apply p-0 pl-4 mb-4;
+        }
+    }
+
+    & kbd {
+        @apply inline-block px-2 py-1.5 text-xs font-mono bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-sm;
+    }
+
+    & .octicon {
+        @apply inline-block align-text-bottom fill-current;
+    }
+
+    & .anchor {
+        @apply float-left pr-1 -ml-5 leading-none;
+
+        &:focus {
+            @apply outline-none;
+        }
+    }
+
+    & details {
+        @apply block;
+    }
+
+    & summary {
+        @apply cursor-pointer;
+    }
+
+    & details summary {
+        @apply list-none;
+    }
+
+    &>[data-catalyst] {
+        @apply block;
+    }
+
+
+    & .task-list-item {
+        @apply list-none;
+
+        & + .task-list-item {
+            @apply mt-1;
+        }
+
+        & input[type="checkbox"] {
+            @apply mr-2 -ml-6 align-middle;
+        }
+    }
+
+    & .alert {
+        @apply p-4 mb-4 border-l-4;
+
+        &.note {
+            @apply border-blue-500 bg-blue-50 dark:bg-blue-900/20;
+        }
+
+        &.warning {
+            @apply border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20;
+        }
+
+        &.danger {
+            @apply border-red-500 bg-red-50 dark:bg-red-900/20;
+        }
+    }
+}

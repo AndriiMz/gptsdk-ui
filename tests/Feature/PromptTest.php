@@ -26,14 +26,16 @@ class PromptTest extends TestCase
         ];
         $promptPath = 'prompt1.prompt';
         // Creates prompt
-        $this->post(
-            "/repository/$repositoryId/prompt",
+        $response = $this->post(
+            "/repository/$repositoryId/file",
             [
-                'content' => $promptContent,
+                'content' => json_encode($promptContent),
                 'path' => $promptPath,
                 'sha' => ''
-            ]
+            ],
+            ['accept' => 'application/json']
         );
+        $response->assertStatus(201);
 
         // Test prompt
         $this->mockAI();
@@ -41,7 +43,7 @@ class PromptTest extends TestCase
             "/ui_api/repository/$repositoryId/prompt/result/$promptPath",
             [
                 'variableValues' => [['who' => 'moroz']],
-                'prompt' => $promptContent['messages'],
+                'prompt' => $promptContent,
                 'aiConnectors' => [
                     [
                         'llmOptions' => $this->aiConnector->llm_options,

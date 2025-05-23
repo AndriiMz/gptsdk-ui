@@ -20,7 +20,10 @@ class RepositoryRowData extends Data
 
     public static function prepareForPipeline(array $properties): array
     {
-        $properties['isEditable'] = str_ends_with($properties['name'], '.prompt');
+        $properties['isEditable'] = in_array(
+            pathinfo($properties['name'], PATHINFO_EXTENSION),
+            ['prompt', 'md']
+        );
 
         return $properties;
     }

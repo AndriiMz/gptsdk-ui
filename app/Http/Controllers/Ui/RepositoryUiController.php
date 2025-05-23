@@ -36,7 +36,7 @@ class RepositoryUiController
         }
 
         return to_route(
-            'prompts',
+            'files',
             [
                 'repository' => $repository->id
             ]

@@ -54,7 +54,7 @@ const repositories = computed(() => page.props.repositories)
                 <template #footer>
                     <div class="flex gap-4 mt-1">
                         <Button as="a"
-                                :href="`repository/${repository.id}/prompts/`"
+                                :href="`repository/${repository.id}/files/`"
                                 icon="pi pi-arrow-down-right"
                                 label="Open" class="w-full" />
 

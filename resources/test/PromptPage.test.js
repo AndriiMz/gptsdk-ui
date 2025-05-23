@@ -41,11 +41,21 @@ vi.mock('@inertiajs/vue3',async (importOriginal) => ({
 
         internalState.post = () => {}
 
+        for (const key in data) {
+            internalState[key] = data[key]
+        }
+
+        internalState.post = () => {}
+        internalState.transform = (callback) => {
+            //TODO: check callback values
+            return internalState
+        }
+
         return internalState
     },
     usePage: () => ({
         props: {
-            prompt: {
+            file: {
                 sha: '',
                 content: {
                     messages: [{role: 'User', content: 'Hello {{who}}!'}],

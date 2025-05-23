@@ -3,7 +3,7 @@
 namespace App\PromptRepository;
 
 use App\Data\BranchData;
-use App\Data\PromptFileData;
+use App\Data\FileData;
 use App\Data\RepositoryRowData;
 use App\Exception\ExpiredApiKeyException;
 use App\Interfaces\PromptRepository;
@@ -69,7 +69,7 @@ class TempPromptRepository implements PromptRepository
         );
     }
 
-    public function getPrompt(string $token, string $owner, string $repositoryName, string $path): ?PromptFileData
+    public function getFile(string $token, string $owner, string $repositoryName, string $path): null|FileData
     {
         $content = file_get_contents(
             $this->convertPromptPath($path)
@@ -79,7 +79,7 @@ class TempPromptRepository implements PromptRepository
             return null;
         }
 
-        return new PromptFileData(
+        return new FileData(
             name: $path,
             content: json_decode($content, true),
             sha: sha1($path)
@@ -94,12 +94,12 @@ class TempPromptRepository implements PromptRepository
         string $message,
         string $committerName,
         string $committerEmail,
-        array $content,
+        string $content,
         ?string $sha = null
     ): void {
         file_put_contents($this->convertPromptPath(
             $path
-        ), json_encode($content));
+        ), $content);
     }
 
     public function deletePrompt(string $token, string $owner, string $repositoryName, string $path, string $message, string $committerName, string $committerEmail, string $sha): void

@@ -1,32 +1,37 @@
 <script setup>
 
-import {onMounted, reactive} from "vue";
-import {Badge, Button, IftaLabel, Panel, ProgressSpinner, Select, Splitter, SplitterPanel, Tag} from "primevue";
+import {onMounted} from "vue";
+import {
+    Badge,
+    Button,
+    IftaLabel,
+    Panel,
+    ProgressSpinner,
+    Select,
+    SelectButton,
+    Splitter,
+    SplitterPanel,
+    Tag
+} from "primevue";
 import {useAiApiKeys} from "../../stores/useAiApiKeys.js";
 import {storeToRefs} from "pinia";
 import {useAiConnectors} from "../../stores/useAiConnectors.js";
 import JsonViewer from "../Json/JsonViewer.vue";
 import {SAVE_VALUES_ACTION, useValuesModal} from "../../stores/useValuesModal.js";
-import moment from "moment";
 import TimeTag from "../../Common/Tags/TimeTag.vue";
 import StatusTag from "../../Common/Tags/StatusTag.vue";
-import axios from "axios"
-
-import dot from "dot-object"
 import Error from "../../Common/Form/Error.vue";
 import {usePromptForm} from "../../stores/usePromptForm.js";
 import {useVariableValues} from "../../stores/useVariableValues.js";
 import {toValuesModalVariables} from "../../types/aiVendorOptionsTemplates";
-
-
-const props = defineProps({
-    prompt: {type: Object},
-    repositoryId: {type: Number},
-    path: {type: String}
-})
+import {usePromptTest} from "../../stores/usePromptTest.js";
+import {ResultViewMode} from "../../types/resultViewMode";
+import PromptResultViewer from "./PromptResultViewer.vue";
+import {useFileForm} from "../../stores/useFileForm.js";
 
 const aiApiKeysStore = useAiApiKeys()
 const { state: aiApiKeysState } = storeToRefs(aiApiKeysStore)
+
 
 const aiConnectorsStore = useAiConnectors()
 const {state: aiConnectorsState} = storeToRefs(aiConnectorsStore)
@@ -36,10 +41,11 @@ const variableValuesStore = useVariableValues()
 const {state: variableValuesState} = storeToRefs(variableValuesStore)
 const { saveVariableValues, deleteVariableValues } = variableValuesStore
 
+const { openValuesModal, $onAction: onValuesAction } = useValuesModal()
+
 const VARIABLE_VALUES_TARGET = 'variableValues';
 const AI_CONNECTOR_TARGET = 'aiConnector';
 
-const { openValuesModal, $onAction: onValuesAction } = useValuesModal()
 onValuesAction(
     ({name, after}) => {
         if (name === SAVE_VALUES_ACTION) {
@@ -54,71 +60,26 @@ onValuesAction(
     }
 )
 
+const promptTestStore = usePromptTest()
+const { state: promptTestState } = storeToRefs(promptTestStore)
+const { loadOldResults, removePromptResults, getPromptResults } = promptTestStore
 
 const promptFormStore = usePromptForm()
-const {state: promptFormState} = storeToRefs(promptFormStore)
+const { state: promptFormState } = storeToRefs(promptFormStore)
 
-const state = reactive({
-    errors: {},
-
-    isLoading: false,
-
-    logs: [],
-
-    logsDateAfter: moment(),
-    hasOldLogs: true
-})
-
-const getPromptResults = () => {
-    state.isLoading = true
-    state.errors = {}
-    axios.post(`/ui_api/repository/${props.repositoryId}/prompt/result/${props.path}`, {
-        variableValues: variableValuesState.value.variableValues.map((item) => item.variableValues),
-        aiConnectors: aiConnectorsState.value.aiConnectors,
-        prompt: props.prompt.messages
-    }).then(({data}) => {
-        state.logs = state.logs.concat(data.logs)
-    }).catch((data) => {
-        state.errors = dot.object(data?.response?.data?.errors)
-    }).finally(() => {
-        state.isLoading = false
-    })
-}
-
-const removePromptResults = () => {
-    state.logs =  []
-    state.logsDateAfter = moment()
-}
-
-const loadOldResults = () => {
-    state.isLoading = true
-    axios.get(
-        `/ui_api/repository/${props.repositoryId}/prompt/ai_logs/${props.path}`,
-        {
-            params: {
-                date_after: state.logsDateAfter.format('YYYY-MM-DD HH:mm:ss')
-            }
-        }
-    ).then(({data}) => {
-        if (!data.logs.length) {
-            state.hasOldLogs = false
-        }
-
-        state.logs.unshift(...data.logs)
-
-        if (state.logs.length) {
-            state.logsDateAfter = moment(state.logs[0].createdAt)
-        }
-    }).finally(() => {
-        state.isLoading = false
-    })
-}
+const { fileForm } = useFileForm()
 
 onMounted(() => {
     aiApiKeysStore.fetchAiApiKeys()
     aiConnectorsStore.fetchAiConnectors()
     variableValuesStore.fetchVariableValues()
 })
+
+
+const resultViewModes = [
+    {label: ResultViewMode.RAW, icon: 'pi pi-align-justify'},
+    {label: ResultViewMode.PRETTY, icon: 'pi pi-align-left'},
+]
 
 </script>
 
@@ -137,7 +98,7 @@ onMounted(() => {
                             data-testid="Action.addVariableValues"
                             variant="text"
                             @click.prevent="openValuesModal({
-                                variables: prompt.variables,
+                                variables: fileForm.content.variables,
                                 values: {},
                                 payload: {target: VARIABLE_VALUES_TARGET},
                                 modalHeader: 'Add Variable Values'
@@ -161,7 +122,7 @@ onMounted(() => {
                                 icon="pi pi-pencil"
                                 aria-label="Edit Variable Values"
                                 @click.prevent="openValuesModal({
-                                    variables: prompt.variables,
+                                    variables: fileForm.content.variables,
                                     values: variableValues.variableValues,
                                     payload: {index, target: VARIABLE_VALUES_TARGET},
                                     modalHeader: 'Edit Variable Values'
@@ -208,7 +169,7 @@ onMounted(() => {
                     <div>
                         <IftaLabel>
                             <Select
-                                :invalid="state.errors?.aiConnectors?.[index]?.aiApiKeyId"
+                                :invalid="promptTestState.errors?.aiConnectors?.[index]?.aiApiKeyId"
                                 :inputId="`dd-api-key-${index}`"
                                 size="small"
                                 :options="aiApiKeysState.aiApiKeys"
@@ -232,7 +193,7 @@ onMounted(() => {
                             <label :for="`dd-api-key-${index}`">Api Key</label>
                         </IftaLabel>
 
-                        <Error :error="state.errors?.aiConnectors?.[index]?.aiApiKeyId" />
+                        <Error :error="promptTestState.errors?.aiConnectors?.[index]?.aiApiKeyId" />
                     </div>
                     <div>
                         <JsonViewer
@@ -240,7 +201,7 @@ onMounted(() => {
                             v-if="aiConnectorsState.aiConnectors[index].aiApiKeyId"
                             :json="aiConnectorsState.aiConnectors[index].llmOptions" />
 
-                        <Error :error="state.errors?.aiConnectors?.[index]?.llmOptions" />
+                        <Error :error="promptTestState.errors?.aiConnectors?.[index]?.llmOptions" />
                     </div>
 
                     <div>
@@ -278,18 +239,31 @@ onMounted(() => {
                     <span class="p-panel-title">
                         Results
                         <ProgressSpinner
-                            v-if="state.isLoading"
+                            v-if="promptTestState.isLoading"
                             style="width: 15px; height: 15px" strokeWidth="4"
                             fill="transparent" />
                     </span>
                     <div class="flex gap-2">
+
+                        <SelectButton v-model="promptTestState.viewMode"
+                                      :allow-empty="false"
+                                      optionLabel="label"
+                                      optionValue="label"
+                                      :options="resultViewModes" >
+                            <template #option="slotProps">
+                                <i :class="slotProps.option.icon"></i>
+                                {{slotProps.option.label}}
+                            </template>
+                        </SelectButton>
+
+
                         <Button label="Get Results"
                                 icon="pi pi-play"
                                 size="small"
                                 @click.prevent="getPromptResults"/>
 
                         <Button label="Get Older Results"
-                                v-if="state.hasOldLogs"
+                                v-if="promptTestState.hasOldLogs"
                                 icon="pi pi-history"
                                 size="small"
                                 variant="text"
@@ -305,42 +279,53 @@ onMounted(() => {
                 </div>
             </template>
 
-            <div v-if="!state.logs.length">
+            <div v-if="!promptTestState.logs.length">
                 No Results yet
             </div>
 
             <div class="flex flex-col gap-2">
-                <template v-for="(log, index) in state.logs">
+                <template v-for="(log, index) in promptTestState.logs">
                     <Splitter>
                         <SplitterPanel :size="25" :minSize="20" class="flex flex-col gap-2 p-2">
                             <div class="flex gap-2">
                                 <StatusTag :status="log.status" />
                                 <TimeTag :time="log.createdAt" />
                             </div>
-                            <div class="flex gap-2">
-                                <Button
-                                    v-if="promptFormState.mocksHashes[log.hash] === undefined"
-                                    icon="pi pi-flag"
-                                        label="Save as Mock"
-                                        size="small"
-                                        @click="promptFormStore.createMock(log)"
-                                        class="w-full" />
-                                <Tag v-else severity="info" class="!p-2 w-full" icon="pi pi-flag" value="Mocked"  />
-
-                                <Button
-                                    @click="state.logs.splice(index, 1)"
-                                    icon="pi pi-times"
-                                    size="small"
-                                    severity="danger"/>
-                            </div>
 
                             <JsonViewer :json="log.variableValues" />
                             <JsonViewer :json="log.llmOptions" />
                         </SplitterPanel>
                         <SplitterPanel :size="75">
-                            <div class="rounded bg-gray-50 dark:bg-gray-800 p-2 flex-1">
-                                <JsonViewer :json="log.output" :id="`log-${log.id}`" />
-                            </div>
+                            <PromptResultViewer
+                                :id="log.id"
+                                :output="log.output"
+                                :ai-vendor="log.aiVendor"
+                                :view-mode="promptTestState.viewMode"
+                            >
+                                <template #actions>
+                                    <Button
+                                        v-if="promptFormState.mocksHashes[log.hash] === undefined"
+                                        icon="pi pi-flag"
+                                        v-tooltip.left="`Save as Mock`"
+                                        size="small"
+                                        variant="text"
+                                        @click="promptFormStore.createMock(log)"
+                                        class="w-full" />
+                                    <Tag v-else severity="info"
+                                         class="!p-2 w-full"
+                                         icon="pi pi-flag"
+                                         value="Mocked"  />
+
+                                    <Button
+                                        @click="promptTestState.logs.splice(index, 1)"
+                                        icon="pi pi-times"
+                                        size="small"
+                                        variant="text"
+                                        v-tooltip.left="`Remove from Compare`"
+                                        severity="danger"/>
+                                </template>
+                            </PromptResultViewer>
+
                         </SplitterPanel>
                     </Splitter>
                 </template>

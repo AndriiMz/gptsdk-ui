@@ -93,6 +93,7 @@ const copiedValue = computed(() => {
                        data-testid="ListItem.messages"
                        :errors="errors[index] ?? {}"
                        @update:modelValue="(m) => updateMessage(m, index)"
+                       @on-change="usePromptForm().onMessageChange()"
                        @on-input="(e) => usePromptForm().setPromptMessageFocus(e.target.selectionStart, index)"
         >
             <template #actions>

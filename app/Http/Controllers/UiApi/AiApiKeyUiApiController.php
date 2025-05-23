@@ -16,7 +16,7 @@ class AiApiKeyUiApiController
             'aiApiKeys' =>
                 AiApiKeyData::collect(
                     AiApiKey::where('user_id', auth()->id())->get()
-                )
+                ),
         ]);
     }
 

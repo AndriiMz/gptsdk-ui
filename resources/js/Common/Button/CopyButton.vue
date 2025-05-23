@@ -5,7 +5,7 @@ import { Button } from "primevue";
 
 const props = defineProps({
     value: '',
-    label: {type: String, default: 'Copy'}
+    label: {type: String, default: 'Copy'},
 })
 
 const emit = defineEmits(['copyEvent'])
@@ -20,7 +20,7 @@ const icon = computed(() => {
 })
 
 const label = computed(() => {
-    return copied.value ? 'Copied!' : 'Copy'
+    return copied.value ? 'Copied!' : props.label
 })
 
 </script>

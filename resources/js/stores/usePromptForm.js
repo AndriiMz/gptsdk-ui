@@ -1,10 +1,13 @@
-import {defineStore} from "pinia";
-import {reactive} from "vue";
+import {defineStore, storeToRefs} from "pinia";
+import {computed, reactive, watch} from "vue";
 import axios from "axios";
 import {useForm, usePage} from "@inertiajs/vue3";
+import {useFileForm} from "./useFileForm.js";
 
 export const usePromptForm = defineStore('promptForm', () => {
-    const page = usePage()
+    const fileFormStore = useFileForm()
+    const { fileForm } = fileFormStore
+    const { state: fileFormState } = storeToRefs(fileFormStore)
 
     const state = reactive({
         focusYIndex: 0,
@@ -12,18 +15,33 @@ export const usePromptForm = defineStore('promptForm', () => {
 
         mocks: {},
         mocksHashes: [],
-
-        repositoryId: page.props.repository.id,
-        path: page.props.path
     })
 
 
-    const promptForm = useForm({
-        sha: page.props.prompt.sha ?? null,
-        content: page.props.prompt.content,
-        path: null
+    const variableByName = computed(() => {
+        const variableByName = { }
+
+        for (const variable of fileForm.content.variables) {
+            variableByName[variable.name] = variable
+        }
+
+        return variableByName
     })
 
+    const onMessageChange = () => {
+        for (const message of fileForm.content.messages) {
+            const matches = message.content.match(/\[\[(.*?)\]\]/g) || [];
+            for (const match of matches) {
+                const variableName = match.slice(2, -2).trim();
+                if (variableName.length && !variableByName.value[variableName]) {
+                    fileForm.content.variables.push({
+                        name: variableName,
+                        value: ''
+                    });
+                }
+            }
+        }
+    }
 
     const setPromptMessageFocus = (x, y) => {
         state.focusXIndex = x
@@ -32,7 +50,7 @@ export const usePromptForm = defineStore('promptForm', () => {
 
     const loadMocks = () => {
         axios
-            .get(`/ui_api/repository/${state.repositoryId}/prompt/mock/${state.path}`)
+            .get(`/ui_api/repository/${fileFormState.value.repositoryId}/prompt/mock/${fileForm.path}`)
             .then(({data}) => {
                 state.mocks = data.mocks
                 state.mocksHashes = data.mocks ?
@@ -43,7 +61,7 @@ export const usePromptForm = defineStore('promptForm', () => {
 
     const deleteMock = (hash) => {
         axios
-            .delete(`/ui_api/repository/${state.repositoryId}/prompt/mock/${state.path}`, {params: {hash}})
+            .delete(`/ui_api/repository/${fileFormState.value.repositoryId}/prompt/mock/${fileForm.path}`, {params: {hash}})
             .then(({data}) => {
                 usePromptForm().loadMocks()
             })
@@ -51,7 +69,7 @@ export const usePromptForm = defineStore('promptForm', () => {
 
     const createMock = (log) => {
         axios.post(
-            `/ui_api/repository/${state.repositoryId}/prompt/mock/${state.path}`,
+            `/ui_api/repository/${fileFormState.value.repositoryId}/prompt/mock/${fileForm.path}`,
             {
                 variableValues: log.variableValues,
                 output: log.output
@@ -63,17 +81,20 @@ export const usePromptForm = defineStore('promptForm', () => {
 
     const renderPrompt = async (values) => {
         const { data } = await axios.post(
-            `/ui_api/repository/${state.repositoryId}/prompt/render/${state.path}`,
+            `/ui_api/repository/${fileFormState.value.repositoryId}/prompt/render/${fileForm.path}`,
             {
                 variableValues: values,
-                prompt: promptForm.content.messages
+                prompt: fileForm.content
             }
         )
 
         return data.prompt
     }
 
-    return {setPromptMessageFocus,
+    return {
+        setPromptMessageFocus,
+        onMessageChange,
+
         loadMocks,
         deleteMock,
         createMock,
@@ -81,6 +102,5 @@ export const usePromptForm = defineStore('promptForm', () => {
         renderPrompt,
 
         state,
-        promptForm
     }
 })

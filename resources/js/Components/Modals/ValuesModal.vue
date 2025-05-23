@@ -3,6 +3,7 @@ import {Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber} fro
 import {useValuesModal} from "../../stores/useValuesModal.js";
 import {storeToRefs} from "pinia";
 import {VariableType} from "../../types/variableType.ts";
+import FileSelect from "../../Common/Form/FileSelect.vue";
 
 
 const store = useValuesModal()
@@ -27,6 +28,13 @@ const { state } = storeToRefs(store)
                             :data-testid="`Input.value-${variable.name}`"
                             class="w-full"
                             v-model="state.values[index]" />
+                    </template>
+                    <template v-else-if="variable.type === VariableType.FILE">
+                        <FileSelect
+                            :data-testid="`Input.value-${variable.name}`"
+                            class="w-full"
+                            v-model="state.values[index]"
+                        />
                     </template>
                     <template v-else>
                         <InputText

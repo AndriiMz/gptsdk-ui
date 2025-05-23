@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use App\Enum\Status;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,4 +29,15 @@ class AiLog extends Model
         'output' => 'array',
         'status' => Status::class
     ];
+
+    public function aiApiKey()
+    {
+        return $this->belongsTo(AiApiKey::class);
+    }
+
+
+    public function getAiVendorAttribute(): string
+    {
+        return $this->aiApiKey()->first()->ai_vendor;
+    }
 }

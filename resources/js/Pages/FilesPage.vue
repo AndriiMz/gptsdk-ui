@@ -1,21 +1,27 @@
 <script setup>
 
-import {Select, DataTable, Column, Button, useToast, Message} from 'primevue'
-import {computed} from "vue";
-import {Head, usePage} from "@inertiajs/vue3";
+import {Button, Column, DataTable, Message, Select, SplitButton, useToast} from 'primevue'
+import {computed, onMounted} from "vue";
+import {Head, router, usePage} from "@inertiajs/vue3";
 import {NodeType} from "../types/nodeType.ts";
 import LayoutTitle from "../Common/LayoutTitle.vue";
 import {SubscriptionStatus} from "../types/subscriptionStatus.ts";
 import {useSubscription} from "../stores/useSubscription.js";
 import axios from "axios"
+import {getBackPath} from "../helpers/pathHelper.ts";
+import {useFiles} from "../stores/useFiles.js";
+import {useRepository} from "../stores/useRepository.js";
+import {storeToRefs} from "pinia";
 
 const page = usePage()
 const toast = useToast()
+const filesStore = useFiles()
+const repositoryStore = useRepository()
+
+const { repository } = storeToRefs(repositoryStore)
+
 const subscriptionStore = useSubscription()
 
-const repository = computed(() => {
-    return page.props.repository
-})
 const branches = computed(() => {
     return page.props.branches
 })
@@ -36,13 +42,7 @@ const files = computed(() => {
 
 const path = computed(() => page.props.path)
 const backPath = computed(() => {
-    if (path.value.length) {
-        const split = path.value.split("/");
-
-        return split.slice(0, split.length - 2).join("/") + "/";
-    }
-
-    return ''
+    return getBackPath(path.value, 2)
 })
 
 const deletePrompt = ({path, sha}) => {
@@ -64,8 +64,25 @@ const isPaidRepository = computed(() => {
     return repository.value.subscriptionStatus === SubscriptionStatus.PAID
 })
 
+const createOptions = [
+    {
+        label: 'Add MD',
+        icon: 'pi pi-plus',
+        command: () => {
+            filesStore.addNewFile({
+                path: path.value,
+                extension: 'md'
+            })
+        }
+    }
+]
 
-
+const addPrompt = () => {
+    filesStore.addNewFile({
+        path: path.value,
+        extension: 'prompt'
+    })
+}
 </script>
 
 <template>
@@ -74,7 +91,7 @@ const isPaidRepository = computed(() => {
     <LayoutTitle>
         {{repository.name}}/{{page.props.path}}
     </LayoutTitle>
-    <div>
+    <div class="flex flex-col gap-2">
         <div class="flex gap-2 justify-items-between items-center">
             <Select v-model="selectedBranch"
                     :options="branches"
@@ -89,12 +106,13 @@ const isPaidRepository = computed(() => {
 
             <div class="flex gap-2">
                 <template v-if="isPaidRepository">
-                    <Button
+                    <SplitButton
+                        :model="createOptions"
                         icon="pi pi-plus"
                         as="a"
                         severity="secondary"
                         label="Add Prompt"
-                        :href="`/repository/${repository.id}/prompt/${path}${path.length ? '/' : ''}new`"/>
+                        @click="addPrompt"/>
                 </template>
                 <template v-else>
                     <Button
@@ -115,34 +133,43 @@ const isPaidRepository = computed(() => {
         </div>
         <div>
             <div class="card">
-                <DataTable :value="files" tableStyle="min-width: 50rem">
+                <DataTable class="rounded" :value="files" tableStyle="min-width: 50rem" >
                     <Column style="width: 20px">
                         <template #body="slotProps">
-                            <i
-                                v-if="slotProps.data.type === NodeType.DIR"
-                                class="pi pi-folder"
-                                style="font-size: 1rem"></i>
+                            <template v-if="slotProps.data.type === NodeType.DIR">
+                                <a :href="`/repository/${repository.id}/files/${slotProps.data.path}`">
+                                    <i class="pi pi-folder" style="font-size: 1rem"></i>
+                                </a>
+                            </template>
 
-                            <i
-                                v-if="slotProps.data.type === NodeType.BACK"
-                                class="pi pi-angle-left"
-                                style="font-size: 1rem"></i>
+                            <template v-if="slotProps.data.type === NodeType.BACK">
+                                <a :href="`/repository/${repository.id}/files/${backPath}`">
+                                    <i class="pi pi-angle-left" style="font-size: 1rem"></i>
+                                </a>
+                            </template>
                         </template>
                     </Column>
-                    <Column header="Name">
+                    <Column header="Name" class="dark:hover:bg-[#202020] hover:bg-slate-100">
                         <template #body="slotProps">
                             <template v-if="slotProps.data.type === NodeType.DIR">
-                                <a :href="`/repository/${repository.id}/prompts/${slotProps.data.path}`">
+                                <a :href="`/repository/${repository.id}/files/${slotProps.data.path}`" class="block w-full">
                                     {{slotProps.data.name}}
                                 </a>
                             </template>
                             <template v-else-if="slotProps.data.type === NodeType.BACK">
-                                <a :href="`/repository/${repository.id}/prompts/${backPath}`">
+                                <a :href="`/repository/${repository.id}/files/${backPath}`" class="block w-full">
                                     {{slotProps.data.name}}
                                 </a>
                             </template>
                             <template v-else>
-                                {{slotProps.data.name}}
+                                <template v-if="isPaidRepository">
+                                    <a class="block w-full" :href="`/repository/${repository.id}/file/${slotProps.data.path}`">
+                                        {{slotProps.data.name}}
+                                    </a>
+                                </template>
+                                <template v-else>
+                                    {{slotProps.data.name}}
+                                </template>
                             </template>
                         </template>
                     </Column>
@@ -157,7 +184,7 @@ const isPaidRepository = computed(() => {
                                             variant="text"
                                             as="a"
                                             data-testid="Action.editPrompt"
-                                            :href="`/repository/${repository.id}/prompt/${slotProps.data.path}`"
+                                            :href="`/repository/${repository.id}/file/${slotProps.data.path}`"
                                             aria-label="Edit"
                                             icon="pi pi-pencil" />
 

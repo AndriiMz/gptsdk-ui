@@ -3,24 +3,24 @@
 namespace App\PromptRepository;
 
 use App\Data\BranchData;
-use App\Data\PromptFileData;
+use App\Data\FileData;
 use App\Data\RepositoryRowData;
 use App\Exception\ExpiredApiKeyException;
 use App\Interfaces\PromptRepository;
+use App\Util\TypeUtil;
+use Nette\Utils\Type;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GitHubPromptRepository implements PromptRepository
 {
 
+    private array $files = [];
     private readonly HttpClientInterface $httpClient;
     public function __construct()
     {
         $this->httpClient = HttpClient::createForBaseUri('https://api.github.com');
     }
-
-
-
     public function getBranches(
         string $token,
         string $owner,
@@ -64,21 +64,29 @@ class GitHubPromptRepository implements PromptRepository
             $owner,
             $repositoryName,
             $path
-        );
+        ) ?? [];
     }
 
-    public function getPrompt(
+    public function getFile(
         string $token,
         string $owner,
         string $repositoryName,
         string $path
-    ): ?PromptFileData {
-        return $this->getContents(
+    ): null|FileData {
+        if (isset($this->files[$path])) {
+            return $this->files[$path];
+        }
+
+        $file = $this->getContents(
             $token,
             $owner,
             $repositoryName,
             $path
         );
+
+        $this->files[$path] = $file;
+
+        return $file;
     }
 
     public function getContents(
@@ -86,7 +94,7 @@ class GitHubPromptRepository implements PromptRepository
         string $owner,
         string $repositoryName,
         string $path
-    ): array|PromptFileData {
+    ): array|FileData|null {
         $response = $this->httpClient->request(
             'GET',
             "repos/$owner/$repositoryName/contents/$path",
@@ -99,16 +107,24 @@ class GitHubPromptRepository implements PromptRepository
             ]
         )->toArray(false);
 
-        if (isset($response['status']) && $response['status'] !== 200) {
+        if (isset($response['status']) && $response['status'] == 404) {
+            return null;
+        }
+
+        if (isset($response['status']) && $response['status'] != 200) {
             throw new ExpiredApiKeyException();
         }
 
         if (isset($response['content'])) {
-            return new PromptFileData(
+            $encodedContent = base64_decode(
+                $response['content']
+            );
+
+            return new FileData(
                 name: $response['name'],
-                content: json_decode(base64_decode(
-                    $response['content']
-                ), true),
+                content: TypeUtil::isJson($encodedContent) ?
+                    json_decode($encodedContent, true) :
+                    $encodedContent,
                 sha: $response['sha']
             );
         }
@@ -124,7 +140,7 @@ class GitHubPromptRepository implements PromptRepository
         string $message,
         string $committerName,
         string $committerEmail,
-        array $content,
+        string $content,
         ?string $sha = null
     ): void {
         $response = $this->httpClient->request(
@@ -142,7 +158,7 @@ class GitHubPromptRepository implements PromptRepository
                         'name' => strlen($committerName) > 0 ? $committerName : 'Admin',
                         'email' => $committerEmail
                     ],
-                    'content' => base64_encode(json_encode($content)),
+                    'content' => base64_encode($content),
                     'sha' => $sha
                 ]
             ]

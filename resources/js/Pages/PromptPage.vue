@@ -1,93 +1,48 @@
 <script setup>
-import {Button, InputGroup, InputGroupAddon, InputText, Message, SelectButton, useToast} from "primevue"
+import {Message, SelectButton} from "primevue"
 
-
-import {Head, useForm, usePage} from "@inertiajs/vue3";
+import {usePage} from "@inertiajs/vue3";
 import PromptBuilder from "../Components/Prompt/PromptBuilder.vue";
 import PromptVariables from "../Components/Prompt/PromptVariables.vue";
-import {computed, onMounted, reactive} from "vue";
+import {onMounted, reactive} from "vue";
 import {FormViewType} from "../types/formViewType.ts";
 import PromptTest from "../Components/Prompt/PromptTest.vue";
-import Error from "../Common/Form/Error.vue";
 
-import dot from "dot-object"
 import PromptMocks from "../Components/Prompt/PromptMocks.vue";
 import {usePromptForm} from "../stores/usePromptForm.js";
-import {NEW} from "../types/defaults.ts";
+import {storeToRefs} from "pinia";
+import {useFileForm} from "../stores/useFileForm.js";
+import FileFormHeader from "../Common/Form/FileFormHeader.vue";
 
 const page = usePage()
-const toast = useToast()
 const state = reactive({
     view: FormViewType.EDIT
 })
 
-const { promptForm } = usePromptForm()
-
-const savePrompt = () => {
-    promptForm.post(
-        `/repository/${page.props.repository.id}/prompt`,
-        {
-            replace: false,
-            onSuccess: () => {
-                toast.add({
-                    severity: 'info',
-                    summary: 'Info',
-                    detail: 'Prompt has saved successfully!',
-                    life: 2000
-                });
-
-                setTimeout(() => {
-                    if (page.props.path === NEW) {
-                        window.location.pathname = `/repository/${page.props.repository.id}/prompt/${promptForm.path}`
-                    }
-                }, 1000)
-            }
-        }
-    )
-}
-
-const promptPathProxy = computed({
-    set: (newValue) => {
-        if (!newValue.endsWith('.prompt')) {
-            newValue += '.prompt';
-        }
-        promptForm.path = newValue;
-    },
-    get: () => {
-        if (!promptForm.path) {
-            return ''
-        }
-
-        return promptForm.path.replace(/\.prompt$/, '')
-    }
-})
-
-const formErrors = computed(() => {
-    return dot.object(
-        promptForm.errors
-    );
-})
-
-const repositoryId = computed(() => {
-    return page.props.repository.id
-})
+const fileFormStore = useFileForm()
+const { state: fileFormState, formErrors } = storeToRefs(fileFormStore)
+const { fileForm } = fileFormStore
 
 onMounted(() => {
-    // Triggers .prompt completion
-    promptPathProxy.value = page.props.path
     usePromptForm().loadMocks()
 })
 
 const onTryingToTest = (newValue) => {
     if (newValue === FormViewType.TEST) {
-        promptForm.post(
-            `/repository/${repositoryId.value}/prompt/validate`,
-            {
-                onError: () => {
-                    state.view = FormViewType.EDIT
-                }
-            }
-        )
+
+        fileForm
+            .transform((data) => ({
+                ...data,
+                content: JSON.stringify(data.content)
+            }))
+            .post(
+                `/repository/${fileFormState.value.repositoryId}/file/validate`,
+                {
+                    onError: () => {
+                        state.view = FormViewType.EDIT
+                    }
+                },
+            )
     }
 }
 
@@ -100,29 +55,8 @@ const tabs = [
 </script>
 
 <template>
-    <Head :title="promptForm.path" />
-
-    <div class="flex gap-4 justify-items-between py-2 items-center">
-        <div>
-            <InputGroup>
-                <InputText
-                    type="text"
-                    data-testid="Input.name"
-                    :invalid="promptForm.errors.path"
-                    v-model="promptPathProxy" />
-                <InputGroupAddon>.prompt</InputGroupAddon>
-            </InputGroup>
-
-            <Error :error="promptForm.errors.path" />
-        </div>
-
-        <Message
-            icon="pi pi-verified"
-            severity="success" >
-            {{promptForm.sha}}
-        </Message>
-
-        <div class="flex gap-2 items-center">
+    <FileFormHeader file-extension="prompt" save-file-toast-msg="Prompt has saved successfully!">
+        <template #modes>
             <SelectButton v-model="state.view"
                           data-testid="Action.testEdit"
                           :allow-empty="false"
@@ -135,12 +69,8 @@ const tabs = [
                     {{slotProps.option.label}}
                 </template>
             </SelectButton>
-
-            <form @submit.prevent="savePrompt">
-                <Button label="Save"  icon="pi pi-save" type="submit" />
-            </form>
-        </div>
-    </div>
+        </template>
+    </FileFormHeader>
 
     <div v-if="page.props.isBrokenPromptFile">
         <Message
@@ -156,13 +86,13 @@ const tabs = [
                 <div class="flex flex-col gap-8 flex-1 flex-grow">
                     <PromptBuilder
                         :errors="formErrors?.content?.messages"
-                        v-model:prompt="promptForm.content.messages"
+                        v-model:prompt="fileForm.content.messages"
                     />
                 </div>
                 <PromptVariables
                     :errors="formErrors?.content?.variables"
-                    v-model:messages="promptForm.content.messages"
-                    v-model:variables="promptForm.content.variables"
+                    v-model:messages="fileForm.content.messages"
+                    v-model:variables="fileForm.content.variables"
                 />
             </div>
         </template>
@@ -170,10 +100,7 @@ const tabs = [
 
     <KeepAlive>
         <template v-if="state.view === FormViewType.TEST">
-                <PromptTest
-                    :path="promptForm.path"
-                    :repository-id="repositoryId"
-                    :prompt="promptForm.content"/>
+                <PromptTest />
         </template>
     </KeepAlive>
 

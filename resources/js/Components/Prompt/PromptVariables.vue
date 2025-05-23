@@ -52,6 +52,12 @@ const insertVariable = ({name}) => {
 
     emits('update:messages', newMessages.value);
 }
+
+const variableTypes = [
+    {name: 'String', key: VariableType.STRING},
+    {name: 'Text', key: VariableType.TEXT},
+    {name: 'File', key: VariableType.FILE},
+]
 </script>
 
 <template>
@@ -83,7 +89,7 @@ const insertVariable = ({name}) => {
                         <Select
                             :inputId="`dd-type-${index}`"
                             size="small"
-                            :options="[{name: 'String', key: VariableType.STRING}]"
+                            :options="variableTypes"
                             optionValue="key"
                             optionLabel="name"
                             type="text"

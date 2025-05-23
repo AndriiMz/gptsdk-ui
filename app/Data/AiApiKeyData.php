@@ -11,6 +11,8 @@ class AiApiKeyData extends Data
         public readonly string $aiVendor,
         public readonly string $name,
         public readonly \DateTime $createdAt,
+        public readonly bool $useForGeneration,
+        public readonly ?string $defaultModel = null,
     ) {
 
     }

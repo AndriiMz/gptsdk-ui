@@ -1,5 +1,7 @@
 import '../css/app.css';
 import 'primeicons/primeicons.css';
+import '@fortawesome/fontawesome-free/css/all.css';
+import '@fortawesome/fontawesome-free/js/all.js';
 
 import {createApp, h} from 'vue'
 import {createInertiaApp} from '@inertiajs/vue3'
@@ -8,10 +10,11 @@ import Layout from "./Common/Layout.vue";
 import Aura from '@primevue/themes/aura';
 import ToastService from 'primevue/toastservice';
 import {createPinia} from "pinia";
-import {ConfirmationService} from "primevue";
+import {ConfirmationService, Tooltip} from "primevue";
 import axios from 'axios';
 
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
 
 createInertiaApp({
     title: (title) => {
@@ -31,6 +34,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            .directive('tooltip', Tooltip)
             .use(createPinia())
             .use(PrimeVue, {
                 theme: {

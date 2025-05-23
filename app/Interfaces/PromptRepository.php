@@ -2,7 +2,8 @@
 
 namespace App\Interfaces;
 
-use App\Data\PromptFileData;
+use App\Data\MdFileData;
+use App\Data\FileData;
 use App\Data\RepositoryRowData;
 
 interface PromptRepository
@@ -32,12 +33,12 @@ interface PromptRepository
         string $path
     ): array;
 
-    public function getPrompt(
+    public function getFile(
         string $token,
         string $owner,
         string $repositoryName,
         string $path
-    ): ?PromptFileData;
+    ): null|FileData;
 
     public function savePrompt(
         string $token,
@@ -47,7 +48,7 @@ interface PromptRepository
         string $message,
         string $committerName,
         string $committerEmail,
-        array $content,
+        string $content,
         ?string $sha = null
     ): void;
 

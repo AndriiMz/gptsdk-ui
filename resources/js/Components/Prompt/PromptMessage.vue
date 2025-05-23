@@ -15,10 +15,7 @@ const props = defineProps({
     errors: {type: Object}
 })
 
-const emits = defineEmits([
-    'update:modelValue',
-    'onInput'
-])
+const emits = defineEmits(['update:modelValue', 'onInput', 'onChange'])
 
 const setRole = (role) => {
     emits('update:modelValue', {
@@ -65,10 +62,11 @@ const selectedRole = computed(() => {
             :name="`prompt-message-${index}`"
             class="w-full textarea textarea-bordered"
             :model-value="modelValue.content"
-           @input="(e) => emits('onInput', e)"
-           @mousedown="(e) => emits('onInput', e)"
-           @update:model-value="(m) => setContent(m)"
-           rows="5" />
+            @input="(e) => emits('onInput', e)"
+            @change="(e) => emits('onChange', e)"
+            @mousedown="(e) => emits('onInput', e)"
+            @update:model-value="(m) => setContent(m)"
+            rows="5" />
         <Error :error="errors?.content" />
         <div></div>
       </div>

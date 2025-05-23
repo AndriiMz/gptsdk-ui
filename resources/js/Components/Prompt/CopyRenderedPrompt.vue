@@ -1,15 +1,16 @@
 <script setup>
 
-
-
 import {Button} from "primevue";
 import {useClipboard} from "@vueuse/core";
 import {computed} from "vue";
 import {usePromptForm} from "../../stores/usePromptForm.js";
 import {SAVE_VALUES_ACTION, useValuesModal} from "../../stores/useValuesModal.js";
+import {useFileForm} from "../../stores/useFileForm.js";
 
 const promptFormStore = usePromptForm()
-const { promptForm, renderPrompt } = promptFormStore
+const { renderPrompt } = promptFormStore
+
+const { fileForm } = useFileForm()
 
 const { openValuesModal, $onAction: onValuesAction } = useValuesModal()
 
@@ -43,7 +44,7 @@ const label = computed(() => {
             :icon="icon"
             :label="label"
             @click.prevent="openValuesModal({
-                variables: promptForm.content.variables,
+                variables: fileForm.content.variables,
                 values: [],
                 payload: {},
                 modalHeader: 'Set Variable Values'

@@ -15,6 +15,8 @@ use App\PromptRepository\TempPromptRepository;
 use App\Storage\DbLogtoSessionStorage;
 use Gptsdk\AI\AnthropicAIVendor;
 use Gptsdk\AI\OpenAIVendor;
+use Gptsdk\Storage\GithubPromptStorage;
+use Gptsdk\Storage\TempLocalPromptStorage;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -124,6 +126,19 @@ class AppServiceProvider extends ServiceProvider
                     new DbLogtoSessionStorage(
                         $application->get(Request::class)
                     )
+                );
+            }
+        );
+
+        $this->app->singleton(
+            GithubPromptStorage::class,
+            function (Application $application) {
+                return new GithubPromptStorage(
+                    HttpClient::create(),
+                    owner: config('services.github.prompts.owner'),
+                    repositoryName: config('services.github.prompts.repositoryName'),
+                    token: config('services.github.prompts.token'),
+                    cacheStorage: new TempLocalPromptStorage()
                 );
             }
         );

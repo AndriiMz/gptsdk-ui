@@ -24,7 +24,7 @@ const goToRepository = (repositoryId) => {
         repositoryId = state.selectedRepositoryId
     }
 
-    window.location.pathname = `/repository/${repositoryId}/prompts`
+    window.location.pathname = `/repository/${repositoryId}/files`
 }
 
 const isDark = useDark()

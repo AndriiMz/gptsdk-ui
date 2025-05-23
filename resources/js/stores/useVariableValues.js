@@ -2,9 +2,11 @@ import {defineStore, storeToRefs} from "pinia";
 import {reactive} from "vue";
 import axios from "axios";
 import {usePromptForm} from "./usePromptForm.js";
+import {useFileForm} from "./useFileForm.js";
 
 export const useVariableValues = defineStore('variableValues', () => {
-    const { state: promptFormState } = storeToRefs(usePromptForm())
+    const { state: fileFormState } = storeToRefs(useFileForm())
+    const { fileForm } = useFileForm()
 
     const state = reactive({
         variableValues: [],
@@ -21,9 +23,9 @@ export const useVariableValues = defineStore('variableValues', () => {
         }
 
         axios.post(
-            `/ui_api/repository/${promptFormState.value.repositoryId}/variable_values/${state.variableValues[index].id ?? ''}`,
+            `/ui_api/repository/${fileFormState.value.repositoryId}/variable_values?path=${state.variableValues[index].id ?? ''}`,
             {
-                path: promptFormState.value.path,
+                path: fileForm.path,
                 variableValues: state.variableValues[index].variableValues
             }
         ).then(() => {
@@ -36,7 +38,7 @@ export const useVariableValues = defineStore('variableValues', () => {
     const deleteVariableValues = (index) => {
         if (state.variableValues[index].id) {
             axios
-                .delete(`/ui_api/repository/${promptFormState.value.repositoryId}/variable_values/${state.variableValues[index].id}`)
+                .delete(`/ui_api/repository/${fileFormState.value.repositoryId}/variable_values/${state.variableValues[index].id}`)
                 .then(() => {
                     fetchVariableValues(true);
                 });
@@ -47,7 +49,7 @@ export const useVariableValues = defineStore('variableValues', () => {
 
     const fetchVariableValues = (force = false) => {
         if (!state.variableValues.length || force) {
-            axios.get(`/ui_api/repository/${promptFormState.value.repositoryId}/variable_values/${promptFormState.value.path}`).then(({data}) => {
+            axios.get(`/ui_api/repository/${fileFormState.value.repositoryId}/variable_values/?path=${fileForm.path}`).then(({data}) => {
                 state.variableValues = data.variableValues;
             });
         }
