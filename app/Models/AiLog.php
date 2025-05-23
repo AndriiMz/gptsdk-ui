@@ -38,6 +38,6 @@ class AiLog extends Model
 
     public function getAiVendorAttribute(): string
     {
-        return $this->aiApiKey()->first()->ai_vendor;
+        return $this->aiApiKey()->first()?->ai_vendor ?? '';
     }
 }
