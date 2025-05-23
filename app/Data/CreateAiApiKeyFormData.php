@@ -13,7 +13,8 @@ class CreateAiApiKeyFormData extends Data
         #[AIApiKey(aiVendorFieldName: 'aiVendor')]
         public readonly string $key,
         #[Min(1)]
-        public readonly string $name
+        public readonly string $name,
+        public readonly ?string $defaultModel,
     ) {
 
     }

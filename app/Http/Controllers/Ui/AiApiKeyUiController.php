@@ -26,6 +26,7 @@ class AiApiKeyUiController
             'name' => $aiApiKeyFormData->name,
             'key' => $aiApiKeyFormData->key,
             'ai_vendor' => $aiApiKeyFormData->aiVendor,
+            'default_model' => $aiApiKeyFormData->defaultModel,
             'user_id' => Auth::user()->id,
         ]);
 

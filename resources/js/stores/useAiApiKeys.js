@@ -55,21 +55,23 @@ export const useAiApiKeys = defineStore('aiApiKeys', () => {
             return
         }
 
-        aiApiKeyForm.post(`/ai_api_key/${state.editApiKeyId}`, {
-            replace: false,
-            onSuccess: () => {
-                useAiApiKeys().fetchAiApiKeys(true)
-                state.isApiKeyModalOpen = false
-                state.editApiKeyId = null
+        aiApiKeyForm.post(
+            state.editApiKeyId ? `/ai_api_key/${state.editApiKeyId}` : `/ai_api_key`,
+            {
+                replace: false,
+                onSuccess: () => {
+                    useAiApiKeys().fetchAiApiKeys(true)
+                    state.isApiKeyModalOpen = false
+                    state.editApiKeyId = null
 
-                toast.add({
-                    severity: 'info',
-                    summary: 'Info',
-                    detail: 'Api Key has saved successfully!',
-                    life: 2000
-                });
-            }
-        })
+                    toast.add({
+                        severity: 'info',
+                        summary: 'Info',
+                        detail: 'Api Key has saved successfully!',
+                        life: 2000
+                    });
+                }
+            })
     }
 
     const setKeyName = async () => {
