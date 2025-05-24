@@ -86,7 +86,7 @@ export const useAiApiKeys = defineStore('aiApiKeys', () => {
 
     const deleteKey = (aiApiKeyId) => {
         confirm.require({
-            message: 'Are you sure you want to delete Api Key?',
+            message: 'Are you sure you want to delete Api Key? This will delete all related AI connectors.',
             header: 'Confirmation',
             icon: 'pi pi-exclamation-triangle',
             rejectProps: {

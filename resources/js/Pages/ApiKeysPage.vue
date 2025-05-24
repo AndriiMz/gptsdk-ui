@@ -7,6 +7,7 @@ import {DataTable, Column, Button, IftaLabel, Select} from "primevue"
 import {momentToElapsed} from "../helpers/dateHelper.js";
 import {Head, usePage} from "@inertiajs/vue3";
 import axios from "axios";
+import Stub from "../Common/Stub.vue";
 
 const store = useAiApiKeys()
 const { state } = storeToRefs(store)
@@ -104,21 +105,15 @@ const updateUseForGeneration = (newId) => {
         </div>
     </template>
     <template v-else>
-        <div class="max-w-4xl border-gray-50 dark:!border-gray-800 border rounded p-10 flex flex-col items-center gap-4">
-            <div>
-                <h3>You don't have any API keys yet.</h3>
-            </div>
-            <div>
+        <Stub title="You don't have any API keys yet.">
+            <template #actions>
                 <Button
                     icon="pi pi-plus"
                     as="a"
                     severity="secondary"
                     @click.prevent="store.addKey"
                     label="Add AI Api Key"/>
-            </div>
-        </div>
-
+            </template>
+        </Stub>
     </template>
-
-
 </template>

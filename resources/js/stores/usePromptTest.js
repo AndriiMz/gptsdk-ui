@@ -59,6 +59,10 @@ export const usePromptTest = defineStore('promptTest', () => {
         state.logsDateAfter = moment()
     }
 
+    const hideLog = (id) => {
+        state.logs = state.logs.filter(log => log.id !== id)
+    }
+
     const loadOldResults = () => {
         state.isLoading = true
         axios.get(
@@ -87,6 +91,7 @@ export const usePromptTest = defineStore('promptTest', () => {
         loadOldResults,
         removePromptResults,
         getPromptResults,
+        hideLog,
 
         state
     }

@@ -1,5 +1,5 @@
 <script setup>
-import {Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber} from "primevue";
+import {Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber, Textarea} from "primevue";
 import {useValuesModal} from "../../stores/useValuesModal.js";
 import {storeToRefs} from "pinia";
 import {VariableType} from "../../types/variableType.ts";
@@ -22,8 +22,17 @@ const { state } = storeToRefs(store)
         <div class="flex flex-col">
             <template v-for="(variable, index) in state.variables">
                 <InputGroup>
-                    <InputText class="!max-w-[150px]" v-model="state.variables[index].name" />
-                    <template v-if="variable.type === VariableType.INT || variable.type === VariableType.FLOAT">
+                    <InputText
+                        class="!w-[150px] !max-w-[150px]"
+                        v-model="state.variables[index].name" />
+
+                    <template v-if="variable.type === VariableType.TEXT">
+                        <Textarea
+                            :data-testid="`Input.value-${variable.name}`"
+                            class="w-full"
+                            v-model="state.values[index]" />
+                    </template>
+                    <template v-else-if="variable.type === VariableType.INT || variable.type === VariableType.FLOAT">
                         <InputNumber
                             :data-testid="`Input.value-${variable.name}`"
                             class="w-full"

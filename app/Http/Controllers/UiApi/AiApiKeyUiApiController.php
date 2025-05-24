@@ -23,8 +23,7 @@ class AiApiKeyUiApiController
     public function deleteKey(AiApiKey $aiApiKey): JsonResponse
     {
         // Update AiConnector to nullify the ai_api_key_id
-        AiConnector::where('ai_api_key_id', $aiApiKey->id)->update(['ai_api_key_id' => null]);
-
+        AiConnector::where('ai_api_key_id', $aiApiKey->id)->delete();
         $aiApiKey->delete();
 
         return new JsonResponse([]);

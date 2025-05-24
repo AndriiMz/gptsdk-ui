@@ -1,6 +1,6 @@
 <script setup>
 
-import {onMounted} from "vue";
+import {computed, onMounted} from "vue";
 import {
     Badge,
     Button,
@@ -62,7 +62,11 @@ onValuesAction(
 
 const promptTestStore = usePromptTest()
 const { state: promptTestState } = storeToRefs(promptTestStore)
-const { loadOldResults, removePromptResults, getPromptResults } = promptTestStore
+const logs = computed(() => {
+    return promptTestState.value.logs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+})
+
+const { loadOldResults, removePromptResults, getPromptResults, hideLog } = promptTestStore
 
 const promptFormStore = usePromptForm()
 const { state: promptFormState } = storeToRefs(promptFormStore)
@@ -279,12 +283,12 @@ const resultViewModes = [
                 </div>
             </template>
 
-            <div v-if="!promptTestState.logs.length">
+            <div v-if="!logs.length">
                 No Results yet
             </div>
 
             <div class="flex flex-col gap-2">
-                <template v-for="(log, index) in promptTestState.logs">
+                <template v-for="(log, index) in logs" :key="log.id">
                     <Splitter>
                         <SplitterPanel :size="25" :minSize="20" class="flex flex-col gap-2 p-2">
                             <div class="flex gap-2">
@@ -317,7 +321,7 @@ const resultViewModes = [
                                          value="Mocked"  />
 
                                     <Button
-                                        @click="promptTestState.logs.splice(index, 1)"
+                                        @click="hideLog(log.id)"
                                         icon="pi pi-times"
                                         size="small"
                                         variant="text"
