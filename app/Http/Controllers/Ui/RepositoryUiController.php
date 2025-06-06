@@ -23,12 +23,17 @@ class RepositoryUiController
                     $repositoryData->toArray()
                 ));
         } else {
+            $shouldSkipSubscription = $user->paidRepositories()->count() < $user->free_repositories_limit;
+            if (empty(config('cashier.key'))) {
+                $shouldSkipSubscription = true;
+            }
+
             $repository = Repository::create(
                 array_merge(
                     $repositoryData->toArray(),
                     [
                         'user_id' => $user->id,
-                        'subscription_status' => $user->paidRepositories()->count() < $user->free_repositories_limit ?
+                        'subscription_status' => $shouldSkipSubscription ?
                             SubscriptionStatus::PAID : SubscriptionStatus::FREE
                     ]
                 )

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Enum\PromptRepositoryType;
 use App\Enum\SubscriptionStatus;
 use App\Guard\LogtoGuard;
+use App\Mock\MockLogtoClient;
 use App\Models\AiApiKey;
 use App\Models\AiConnector;
 use App\Models\AiVariableValue;
@@ -121,24 +122,14 @@ class AppServiceProvider extends ServiceProvider
                         endpoint: config('auth.logto.endpoint'),
                         appId: config('auth.logto.app_id'),
                         appSecret: config('auth.logto.app_secret'),
-                        scopes: [UserScope::profile, UserScope::email]
+                        scopes: [
+                            UserScope::profile,
+                            UserScope::email
+                        ]
                     ),
                     new DbLogtoSessionStorage(
                         $application->get(Request::class)
                     )
-                );
-            }
-        );
-
-        $this->app->singleton(
-            GithubPromptStorage::class,
-            function (Application $application) {
-                return new GithubPromptStorage(
-                    HttpClient::create(),
-                    owner: config('services.github.prompts.owner'),
-                    repositoryName: config('services.github.prompts.repositoryName'),
-                    token: config('services.github.prompts.token'),
-                    cacheStorage: new TempLocalPromptStorage()
                 );
             }
         );
@@ -152,5 +143,18 @@ class AppServiceProvider extends ServiceProvider
 
             );
         });
+
+        $this->app->singleton(
+            GithubPromptStorage::class,
+            function (Application $application) {
+                return new GithubPromptStorage(
+                    HttpClient::create(),
+                    owner: config('services.github.prompts.owner'),
+                    repositoryName: config('services.github.prompts.repositoryName'),
+                    token: config('services.github.prompts.token'),
+                    cacheStorage: new TempLocalPromptStorage()
+                );
+            }
+        );
     }
 }

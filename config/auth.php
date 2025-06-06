@@ -42,7 +42,7 @@ return [
 
     'guards' => [
         'web' => [
-            'driver' => 'logto',
+            'driver' => env('APP_AUTH_GUARD'),
             'provider' => 'users',
         ],
     ],
