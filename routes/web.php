@@ -98,7 +98,7 @@ $uiApiRoutes = Route::prefix('ui_api')->group(function () {
 $uiRoutes = Route::group([], function () {
     Route::get('/', function () {
         if (empty($hasAuth)) {
-            $user = \App\Models\User::find(1) ?? \App\Models\User::create([
+            $user = \App\Models\User::first() ?? \App\Models\User::create([
                 'name' => 'Admin',
                 'email' => 'admin@gpt-sdk.com',
                 'password' => Hash::make('123456'),

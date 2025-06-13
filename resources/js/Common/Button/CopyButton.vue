@@ -9,10 +9,25 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['copyEvent'])
-const { copy: copy, copied: copied } = useClipboard()
+const { copy: copy, copied: copied, isSupported } = useClipboard()
 
 const copyValue = () => {
-    copy(props.value)
+    if (isSupported.value) {
+        copy(props.value)
+    } else {
+        const input = document.createElement('input')
+        input.value = props.value
+        document.body.appendChild(input)
+        input.select()
+        document.execCommand('copy')
+        document.body.removeChild(input)
+
+        copied.value = true
+
+        setTimeout(() => {
+            copied.value = false
+        }, 1000)
+    }
 }
 
 const icon = computed(() => {
