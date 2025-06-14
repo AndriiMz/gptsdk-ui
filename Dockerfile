@@ -1,45 +1,40 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+FROM php:8.2-fpm
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    curl \
+    unzip \
+    git \
+    nginx \
+    libzip-dev \
+    supervisor \
+    nodejs \
+    npm
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www
 
 COPY . .
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Install dependencies
+RUN composer install --optimize-autoloader --no-dev
+RUN npm install && npm run build  # Build frontend assets
 
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+# Copy Laravel public directory to nginx
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+EXPOSE 80
 
-RUN apk update \
-    && apk install -y php8.3-cli php8.3-dev \
-       php8.3-pgsql php8.3-sqlite3 php8.3-gd \
-       php8.3-curl php8.3-mongodb \
-       php8.3-imap php8.3-mysql php8.3-mbstring \
-       php8.3-xml php8.3-zip php8.3-bcmath php8.3-soap \
-       php8.3-intl php8.3-readline \
-       php8.3-ldap \
-       php8.3-msgpack php8.3-igbinary php8.3-redis \
-       php8.3-memcached php8.3-pcov php8.3-imagick php8.3-xdebug php8.3-swoole
-
-RUN composer install
-RUN composer install && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apk install -y nodejs && \
-    npm install && \
-    npm run build
-
-RUN echo "Caching config..." && \
-    php artisan config:cache && \
-    echo "Caching routes..." && \
-    php artisan route:cache && \
-    echo "Running migrations..." && \
-    php artisan migrate --force
-
-CMD ["/start.sh"]
+CMD php artisan config:cache && php artisan migrate --force && php-fpm
