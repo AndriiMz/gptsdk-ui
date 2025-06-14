@@ -17,8 +17,8 @@ ENV LOG_CHANNEL stderr
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN apt-get update \
-    && apt-get install -y php8.3-cli php8.3-dev \
+RUN apk update \
+    && apk install -y php8.3-cli php8.3-dev \
        php8.3-pgsql php8.3-sqlite3 php8.3-gd \
        php8.3-curl php8.3-mongodb \
        php8.3-imap php8.3-mysql php8.3-mbstring \
@@ -31,7 +31,7 @@ RUN apt-get update \
 RUN composer install
 RUN composer install && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
+    apk install -y nodejs && \
     npm install && \
     npm run build
 
