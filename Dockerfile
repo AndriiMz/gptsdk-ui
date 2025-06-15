@@ -56,11 +56,10 @@ RUN apt-get update && apt-get upgrade -y \
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.3
 
-RUN userdel -r ubuntu
 RUN groupadd --force -g $WWWGROUP sail
 RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
 
-RUN ln -sf /usr/bin/php8.3 /usr/bin/php && chmod +x /usr/bin/php
+RUN cp /usr/bin/php8.3 /usr/local/bin/php && chmod +x /usr/local/bin/php
 
 COPY . .
 
@@ -69,6 +68,6 @@ COPY docker/render/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/render/php.ini /etc/php/8.3/cli/conf.d/99-sail.ini
 RUN chmod +x /usr/local/bin/start-container
 
-EXPOSE 80/tcp
+EXPOSE 80
 
 ENTRYPOINT ["start-container"]
