@@ -45,6 +45,8 @@ else\n\
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf\n\
 fi\n' > /usr/local/bin/start-container && chmod +x /usr/local/bin/start-container
 
+ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/artisan serve --host=0.0.0.0 --port=80"
+
 RUN echo '[supervisord]\n\
 nodaemon=true\n\
 user=root\n\
@@ -53,7 +55,7 @@ pidfile=/var/run/supervisord.pid\n\
 \n\
 [program:php]\n\
 command=%(ENV_SUPERVISOR_PHP_COMMAND)s\n\
-user=%(ENV_SUPERVISOR_PHP_USER)s\n\
+user=root\n\
 stdout_logfile=/dev/stdout\n\
 stdout_logfile_maxbytes=0\n\
 stderr_logfile=/dev/stderr\n\
