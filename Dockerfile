@@ -60,6 +60,8 @@ RUN userdel -r ubuntu
 RUN groupadd --force -g $WWWGROUP sail
 RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
 
+RUN ln -sf /usr/bin/php8.3 /usr/bin/php && chmod +x /usr/bin/php
+
 COPY . .
 
 COPY docker/render/start-container /usr/local/bin/start-container
