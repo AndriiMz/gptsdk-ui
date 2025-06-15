@@ -15,6 +15,22 @@ ENV TZ=UTC
 ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=80"
 ENV SUPERVISOR_PHP_USER="sail"
 
+
+ENV APP_NAME=GptSdk
+ENV APP_ENV=production
+ENV APP_KEY=base64:u/KEN0+rtafipBfS9pekQUCrKqXGLKOaJU8gUI9EW5c=
+ENV APP_TIMEZONE=UTC
+ENV APP_URL=http://localhost:80
+ENV APP_PORT=80
+ENV APP_AUTH_GUARD=session
+
+ENV DB_CONNECTION=mysql
+ENV DB_HOST=127.0.0.1
+ENV DB_PORT=3306
+ENV DB_DATABASE=gptsdk
+ENV DB_USERNAME=root
+ENV DB_PASSWORD=gptsdk
+
 # Timezone setup
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -50,12 +66,7 @@ RUN apt-get install -y $MYSQL_CLIENT && \
 
 # Configure MySQL and create data directory
 RUN apt-get update && apt-get install -y mysql-server && \
-    mkdir -p /var/lib/mysql /var/run/mysqld && \
-    echo '[mysqld]' > /etc/mysql/my.cnf && \
-    echo 'bind-address = 0.0.0.0' >> /etc/mysql/my.cnf && \
-    echo 'datadir = /var/lib/mysql' >> /etc/mysql/my.cnf && \
-    echo 'skip-grant-tables' >> /etc/mysql/my.cnf && \
-    service mysql start
+    mkdir -p /var/lib/mysql /var/run/mysqld
 
 # PHP bind permissions
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.3
@@ -71,22 +82,16 @@ RUN git clone https://github.com/AndriiMz/gptsdk-ui /var/www/html
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 RUN service mysql start && \
-    mysql -e "FLUSH PRIVILEGES;" && \
-    mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" && \
-    mysql -e "CREATE DATABASE IF NOT EXISTS gptsdk;" && \
-    mysql -e "GRANT ALL PRIVILEGES ON gptsdk.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" && \
-    mysql -e "FLUSH PRIVILEGES;" && \
-    sed -i 's/skip-grant-tables/#skip-grant-tables/' /etc/mysql/my.cnf
+    mysql -u root -e "FLUSH PRIVILEGES;" && \
+    mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';" && \
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS gptsdk;" && \
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';" && \
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON gptsdk.* TO 'root'@'%';" && \
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;" && \
+    service mysql stop
 
 # Install JS dependencies and build
 RUN npm install && npm run build
-
-# Move built assets (if needed – adjust to actual structure)
-# e.g., cp -r dist/* /var/www/html/public/
-
-# Laravel setup (optional)
-RUN php artisan config:clear && php artisan cache:clear
-RUN php artisan migrate
 
 # Add default files for container startup
 RUN echo '#!/usr/bin/env bash\n\
@@ -131,13 +136,24 @@ stderr_logfile_maxbytes=0' > /etc/supervisor/conf.d/supervisord.conf
 RUN echo '[PHP]\npost_max_size = 100M\nupload_max_filesize = 100M\nvariables_order = EGPCS\npcov.directory = .' > /etc/php/8.3/cli/conf.d/99-sail.ini
 RUN chmod +x /usr/local/bin/start-container
 
-
-
 # Update supervisord.conf to include MySQL
 RUN echo "[program:mysql]" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "command=/usr/bin/mysqld_safe" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "autostart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf
+
+RUN echo '[mysqld]\nbind-address=0.0.0.0\nport=3306\ndatadir=/var/lib/mysql' > /etc/mysql/my.cnf
+
+RUN chown -R sail:$WWWGROUP /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R ug+rw /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chown -R sail:$WWWGROUP /var/lib/mysql /var/run/mysqld && \
+    chmod -R 777 /var/lib/mysql /var/run/mysqld
+
+# Run migrations
+RUN service mysql start &&  \
+    php artisan migrate --force && \
+    php artisan config:clear && \
+    php artisan cache:clear
 
 EXPOSE 80 3306
 
