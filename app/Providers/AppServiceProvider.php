@@ -149,9 +149,9 @@ class AppServiceProvider extends ServiceProvider
             function (Application $application) {
                 return new GithubPromptStorage(
                     HttpClient::create(),
-                    owner: config('services.github.prompts.owner'),
-                    repositoryName: config('services.github.prompts.repositoryName'),
-                    token: config('services.github.prompts.token'),
+                    owner: config('services.github.prompts.owner') ?? '',
+                    repositoryName: config('services.github.prompts.repositoryName') ?? '',
+                    token: config('services.github.prompts.token') ?? '',
                     cacheStorage: new TempLocalPromptStorage()
                 );
             }
