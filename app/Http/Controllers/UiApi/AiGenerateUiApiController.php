@@ -12,6 +12,7 @@ use Gptsdk\Enum\CompilerType;
 use Gptsdk\Storage\GithubPromptStorage;
 use Gptsdk\Types\AiRequest;
 use Gptsdk\Types\Prompt;
+use Gptsdk\Types\PromptMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpClient\HttpClient;
@@ -53,11 +54,9 @@ class AiGenerateUiApiController
                 aiVendor: $aiApiKey->ai_vendor,
                 llmOptions: ['model' => $aiApiKey->default_model],
                 compilerType: CompilerType::DOUBLE_BRACKETS,
-                prompt: new Prompt(
-                    path: '',
-                    messages: $promptArray['messages'],
-                    variables: $promptArray['variables'],
-                    compilerType: CompilerType::DOUBLE_BRACKETS,
+                messages: array_map(
+                    fn($message) => new PromptMessage(role: $message['role'], content: $message['content']),
+                    $promptArray['messages']
                 ),
                 variableValues: $request->get('values')
             ),
