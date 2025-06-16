@@ -15,7 +15,6 @@ ENV TZ=UTC
 ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=80"
 ENV SUPERVISOR_PHP_USER="sail"
 
-
 ENV APP_NAME=GptSdk
 ENV APP_ENV=production
 ENV APP_KEY=base64:u/KEN0+rtafipBfS9pekQUCrKqXGLKOaJU8gUI9EW5c=
