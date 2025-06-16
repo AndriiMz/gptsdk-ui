@@ -22,17 +22,10 @@ class AiGenerateUiApiController
         AiApiKeyRepository $aiApiKeyRepository,
         GithubPromptStorage $githubPromptStorage,
     ): JsonResponse {
-        $prompt = $githubPromptStorage->getPrompt('system/generator.prompt');
-        //TODO:
-        // 1. Show key label +
-        // 2. Crete prompt definition
-        // 3. Draw prompt form
-        // 4. Submit prompt form
-        // 5. Show results
-        // 6. Add copy button, insert button
-
+        //$prompt = $githubPromptStorage->getPrompt('system/generator.prompt');
+        $promptArray = $this->getSystemPrompt();
         return new JsonResponse([
-            'variables' => $prompt->variables,
+            'variables' => $promptArray['variables'],
             'aiApiKey' => AiApiKeyData::optional(
                 $aiApiKeyRepository->getAiApiKeyForGeneration()
             ),
@@ -52,11 +45,8 @@ class AiGenerateUiApiController
             $githubPromptStorage
         );
 
-        $promptArray = json_decode(
-            '{"messages":[{"role":"user","content":"Generate a content for file [[filePath]]. \nIf file ends with .prompt it should be a prompt. \nIf file ends with .md it should be a documentation file.\nHere is a context\n\"\"\"\n[[context]]\n\"\"\"\nHere is an actual file content:\n\"\"\"\n[[content]]\n\"\"\""}],"variables":[{"name":"filePath","value":"","type":"string"},{"name":"context","value":"","type":"text"},{"name":"content","value":"","type":"text"}]}',
-            true
-        );
 
+        $promptArray = $this->getSystemPrompt();
         $aiResponses = $completionAi->complete([
             new AiRequest(
                 apiKey: $aiApiKey->key,
@@ -70,11 +60,19 @@ class AiGenerateUiApiController
                     compilerType: CompilerType::DOUBLE_BRACKETS,
                 ),
                 variableValues: $request->get('values')
-            )
+            ),
         ]);
 
         return new JsonResponse([
-            'response' => $aiResponses[0]->plainResponse
+            'response' => $aiResponses[0]->plainResponse,
         ]);
+    }
+
+    private function getSystemPrompt(): array
+    {
+        return json_decode(
+            '{"messages":[{"role":"user","content":"Generate a content for file [[filePath]]. \nIf file ends with .prompt it should be a prompt. \nIf file ends with .md it should be a documentation file.\nHere is a context\n\"\"\"\n[[context]]\n\"\"\"\nHere is an actual file content:\n\"\"\"\n[[content]]\n\"\"\""}],"variables":[{"name":"filePath","value":"","type":"string"},{"name":"context","value":"","type":"text"},{"name":"content","value":"","type":"text"}]}',
+            true
+        );
     }
 }
