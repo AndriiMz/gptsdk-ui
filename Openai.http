@@ -17,7 +17,7 @@
 #    ]
 #  }'
 POST https://api.openai.com/v1/chat/completions
-Authorization: Bearer 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
+Authorization: Bearer tt
 Content-Type: application/json
 
 {
