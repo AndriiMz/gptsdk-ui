@@ -5,20 +5,20 @@ name: Deploy to DigitalOcean Droplet
       - main
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to DigitalOcean Droplet
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{secrets.HOST}}
-          username: ${{secrets.USERNAME}}
-          key: ${{secrets.KEY}}
-          script: |
-            cd /var/www/gptsdk-ui
-            ssh-agent bash -c 'ssh-add ~/.ssh/gptsdk-ui_rsa; git pull';
-            npm install
-            npm run build
-            ./artisan migrate
-            ./artisan cache:clear
-            echo 'Deployment to digital ocean finished'
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Deploy to DigitalOcean Droplet
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{secrets.HOST}}
+#          username: ${{secrets.USERNAME}}
+#          key: ${{secrets.KEY}}
+#          script: |
+#            cd /var/www/gptsdk-ui
+#            ssh-agent bash -c 'ssh-add ~/.ssh/gptsdk-ui_rsa; git pull';
+#            npm install
+#            npm run build
+#            ./artisan migrate
+#            ./artisan cache:clear
+#            echo 'Deployment to digital ocean finished'

@@ -5,4 +5,5 @@ export enum VariableType {
     FLOAT = 'float',
     FILE = 'file',
     TEXT = 'text',
+    DROPDOWN = 'dropdown'
 }

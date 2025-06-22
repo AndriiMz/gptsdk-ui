@@ -1,0 +1,38 @@
+###
+
+# curl https://api.openai.com/v1/chat/completions
+#  -H "Content-Type: application/json"
+#  -H "Authorization: Bearer $OPENAI_API_KEY"
+#  -d '{
+#    "model": "gpt-4.1",
+#    "messages": [
+#      {
+#        "role": "developer",
+#        "content": "You are a helpful assistant."
+#      },
+#      {
+#        "role": "user",
+#        "content": "Hello!"
+#      }
+#    ]
+#  }'
+POST https://api.openai.com/v1/chat/completions
+Authorization: Bearer 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
+Content-Type: application/json
+
+{
+    "model": "gpt-3.5-turbo",
+    "messages": [
+        {
+            "role": "developer",
+            "content": "You are a helpful assistant."
+        },
+        {
+            "role": "user",
+            "content": "Hello!"
+        }
+    ]
+}
+
+###
+

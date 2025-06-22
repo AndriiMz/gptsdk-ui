@@ -57,6 +57,7 @@ const variableTypes = [
     {name: 'String', key: VariableType.STRING},
     {name: 'Text', key: VariableType.TEXT},
     {name: 'File', key: VariableType.FILE},
+    {name: 'Dropdown', key: VariableType.DROPDOWN},
 ]
 </script>
 
@@ -105,6 +106,15 @@ const variableTypes = [
                         class="w-full"
                         size="small"
                         v-model="props.variables[index].note" />
+                </IftaLabel>
+
+
+                <IftaLabel v-if="props.variables[index].type === VariableType.DROPDOWN">
+                    <label>Options</label>
+                    <Textarea
+                        class="w-full"
+                        size="small"
+                        v-model="props.variables[index].options" />
                 </IftaLabel>
 
 
